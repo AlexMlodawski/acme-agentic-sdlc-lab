@@ -37,35 +37,21 @@
 | SBOM generator | `scripts/generate-sbom.mjs` | Combines npm and Python locks into deterministic CycloneDX 1.6 | Does not replace a human license/notice review |
 | License metadata inventory | `scripts/generate-license-inventory.mjs` | Deduplicates the locked npm graph, enriches it from installed manifests, adds installed Python distributions, and flags ambiguous or absent metadata | Generation can pass while legal review remains `not_asserted` |
 | Release audit | `scripts/release-audit.mjs`, `.ps1` | Runs Quick/Full hard gates and writes redacted evidence for an exact candidate | Does not approve, sign, tag, publish, deploy, import, or promote |
+| Bob Shell advisory controller | `scripts/bob-shell-review.mjs`, `scripts/bob-review-*.mjs` | After service-controlled gate success, creates and validates a fixed same-run pass record, creates a pristine exact-candidate checkout, gives Bob the complete tracked source for bounded read-only review, and validates non-overwriting sanitized output | Manual and optional; source presence does not prove authenticated execution or release readiness |
+| Bob review report contract | `contracts/bob-review.schema.json` | Defines the public-safe exact-SHA advisory report shape | A valid report is advisory and cannot override deterministic gates |
 | Cleanup helper | `scripts/cleanup-local.mjs` | Resets allowlisted generated state or removes project-local dependency state | Requires explicit confirmation and preserves global/shared caches |
 | CI definitions | `.github/workflows` | Define verification, browser, CodeQL, dependency-review, and release-audit jobs with bounded permissions | Source presence does not prove a host-side workflow ran or a security feature is enabled |
 | Evidence examples | `examples/evidence` | Demonstrate the four-state evidence vocabulary | Always synthetic samples |
-| Bob prompt examples | `examples/prompts` | Demonstrate plan, approval, and review choreography | No executable Bob integration |
+| Bob prompt examples | `examples/prompts` | Demonstrate plan, approval, and strict machine-readable review choreography | IDE prompts remain human-operated; the Shell prompt is consumed only by the manual controller |
 | Design assets | `design`, `docs/assets`, portal CSS | Provide owned visual presentation and tokens | Visual presence is not accessibility certification |
 | Governance documents | Root Markdown files and `docs` | Define contribution, security, evidence, and claim boundaries | Policy text requires enforcement and observed evidence |
 
-## Repository shape at the baseline
+## Repository shape
 
-The 151 tracked files were distributed across these top-level areas:
-
-| Area | File count |
-| --- | ---: |
-| Root | 17 |
-| `.github` | 3 |
-| `agents` | 24 |
-| `apps` | 51 |
-| `contracts` | 1 |
-| `design` | 1 |
-| `docs` | 11 |
-| `examples` | 5 |
-| `knowledge` | 1 |
-| `scripts` | 5 |
-| `services` | 28 |
-| `tests` | 4 |
-
-Counts describe the recorded baseline only. Generated dependencies, caches, build
-outputs, Playwright reports, local environments, and generated SBOM files are not
-source components.
+The tracked tree is the source of truth; use `git ls-files` against the exact
+candidate when a count is needed. Generated dependencies, caches, build outputs,
+Playwright reports, local environments, release evidence, and Bob review artifacts
+are not source components.
 
 ## Explicitly absent components
 
@@ -75,5 +61,6 @@ source components.
 - Database or durable case store.
 - Replay recorder, fixture player, or replay UI.
 - Automated WXO tenant importer or Live promotion command.
-- Automated IBM Bob runner.
+- An always-on or automatically triggered IBM Bob runner. The shipped Bob Shell
+  workflow is manual and requires a separately administered ephemeral runner.
 - Automatic merge or human-approval enforcement service.

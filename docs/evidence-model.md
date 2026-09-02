@@ -28,4 +28,9 @@ errors, screenshots of fictional data, and aggregate cost metadata. They must
 not include prompts containing private data, credentials, auth headers, cookies,
 raw model reasoning, private tenant URLs, or unrestricted logs.
 
+The Bob advisory report uses a narrower contract: one `reviewedAt` timestamp,
+configured cost/turn caps, exact SHAs, guard and gate facts, sanitized findings and
+`notAsserted` items, a recommendation, and completion hashes. It does not retain a
+start/finish pair, process-exit metadata, or the raw terminal stream.
+
 Two synthetic examples live under `examples/evidence`.

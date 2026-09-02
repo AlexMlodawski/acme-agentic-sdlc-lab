@@ -27,7 +27,8 @@ intended to remain on loopback after those prerequisites are present.
 | `npm run test:openapi` | Lint the OpenAPI document | No intentional source write | None intended |
 | `npm run test:release-scan` | Test the release scanner itself | Temporary test data | None intended |
 | `npm run test:history-scan` | Test historical-secret and metadata-privacy detection | OS temporary test repositories | None intended |
-| `npm test` | Run portal, API, OpenAPI, and scanner tests | Test output | None intended after install |
+| `npm run test:bob-review` | Test the Bob report, exact-SHA gate record, workspace guard, wrapper inputs, and manual-workflow contract without authentication | Contained OS temporary Git fixtures | None |
+| `npm test` | Run portal, API, OpenAPI, scanners, release tooling, and Bob-controller contract tests | Test and contained temporary output | None intended after install |
 | `npm run secret:scan` | Scan currently tracked files for selected release hazards | No intentional write | None intended |
 | `npm run history:scan` | Scan all commits reachable from local refs plus commit-email metadata | No intentional write | None intended |
 | `npm run build` | Build every workspace that defines `build` | Portal `.next` and API `dist` | None intended after install |
@@ -41,6 +42,8 @@ intended to remain on loopback after those prerequisites are present.
 | `npm run licenses:inventory` | Inventory the locked npm graph, enriched from installed manifests, plus installed Python license metadata without changing dependencies | Ignored `license-inventory.json` | None; Python collection is offline and no-sync |
 | `npm run verify:archive` | Archive the exact clean HEAD and verify an extracted copy | Contained temporary archive state, then cleanup | Dependency install/audit steps may use package and vulnerability services |
 | `npm run release:audit -- --mode Full --candidate <label>` | Run hard gates and produce candidate-bound redacted evidence | Ignored `release-evidence/<label>` | Dependency and vulnerability steps may use external services |
+| `npm run review:bob -- --candidate <sha> --gate-evidence <file> --accept-license` | Linux-only low-level controller entrypoint after validating a same-run gate record; the supported public path is the manual GitHub workflow | Ignored `artifacts/bob-review` plus disposable OS-temp checkout/profile; refuses to overwrite existing evidence | Contacts IBM Bob; requires a protected credential and isolated runner |
+| `npm run review:bob:validate` | Revalidate the generated Bob JSON/Markdown pair and completion hashes | None intended | None |
 | `npm run reset` | Remove only allowlisted generated state while preserving release evidence | Deletes allowlisted generated paths | None |
 | `npm run uninstall:project` | Reset plus removal of project-local npm/Python dependencies while preserving release evidence | Deletes allowlisted generated/dependency paths | None |
 | `npm run purge:evidence` | Explicitly delete all retained local release-audit evidence | Deletes the complete ignored `release-evidence` tree | None |
@@ -99,6 +102,17 @@ dependency SBOM, and hard-gate status. It refuses a dirty tree, rechecks source 
 archive binding, and writes `evidence-complete.json` last so an interrupted directory
 cannot be mistaken for a complete bundle. It does not overwrite evidence for an
 existing candidate label.
+
+The optional Bob Shell workflow is not part of the required local verification
+sequence. It repeats these deterministic gates in a credential-free GitHub-hosted
+job. After GitHub reports that dependency as successful, the fresh ephemeral review
+job creates a fixed same-run pass record locally; no gate-evidence artifact crosses
+the job boundary. It gives Bob the complete tracked exact-candidate source plus that
+record, not a diff, PR scope, logs, or test summaries. See
+[Bob Shell in CI/CD](bob-shell-cicd.md); do not manufacture the required gate-evidence
+file, invoke the Linux-only low-level command as a public workflow substitute, or
+treat an AI recommendation as a test result. Bob evidence is never automatically
+overwritten.
 
 ## Deliberately absent lifecycle operations
 

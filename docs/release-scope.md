@@ -23,7 +23,8 @@ report is not sufficient candidate identity.
 - Candidate-bound redacted evidence, combined locked-dependency SBOM generation,
   and clean-archive verification.
 - Source-level adapters for watsonx Orchestrate Draft and Instana OTLP/HTTP.
-- Source-level guidance for a human-controlled IBM Bob development session.
+- Source-level guidance for a human-controlled IBM Bob development session and an
+  optional, manual exact-SHA Bob Shell advisory-review controller.
 - The evidence vocabulary `pass`, `fail`, `not_completed`, and `not_asserted`.
 - Apache-2.0 licensing, community-project positioning, and IBM trademark disclaimers.
 
@@ -36,14 +37,15 @@ it does not expand the validated release claim:
 | --- | --- | --- |
 | watsonx Orchestrate | Draft agent definition, token/provider adapter, read-only order tool, tests with controlled doubles | Source-level integration seam; tenant execution is `not_asserted` |
 | Instana | Restricted OTLP/HTTP configuration and local wire-level test sources | Export adapter exists; tenant receipt and trace correlation are `not_asserted` |
-| IBM Bob | Human-review choreography and example prompts | Documentation example; no Bob-authored candidate is asserted |
+| IBM Bob | Plan/approval prompts plus a manual two-job Bob Shell exact-SHA controller, service-ordered same-run pass record, full tracked-source review, strict non-overwriting report contract, tracked-worktree mutation guard, and tests | Controller source is implemented; Bob IDE commit attribution and authenticated Bob Shell execution require separate evidence |
 | GitHub | Least-privilege CI, CodeQL, dependency-review, update, and release-audit definitions | Source-level automation only; execution and repository settings require separate observation |
 
 ## Out of scope
 
 - A Forgejo issue-to-release pipeline.
 - Replay UI, replay data capture, or a replay runtime profile.
-- Automated IBM Bob execution or attribution of this release to a Bob session.
+- Automatic or required IBM Bob execution, and unsupported attribution of this
+  release to a Bob session.
 - Automated import, deployment, or promotion into watsonx Orchestrate.
 - watsonx Orchestrate Live changes or production tenant use.
 - Verified execution against any external WXO or Instana tenant.

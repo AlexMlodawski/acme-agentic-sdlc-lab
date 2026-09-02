@@ -7,10 +7,17 @@ its release documentation. AI assistance may include source inspection, drafting
 implementation suggestions, test generation, documentation, and analysis of local
 verification output.
 
-This disclosure does not attribute the baseline commit or any release candidate to
-a particular product, model, or session. IBM Bob appears in this repository as an
-optional development choreography; without session-bound evidence, no current code
-or commit is claimed to have been authored by Bob.
+The maintainer describes this project as a case study developed with IBM Bob in a
+plan-first, human-reviewed workflow. The repository publishes the resulting source,
+example prompts, tests, and process boundaries, but deliberately does not publish
+private session transcripts or hidden reasoning. Consequently, the source alone
+does not independently prove which exact lines or commits were produced in a Bob
+IDE session; narrower commit-level attribution requires separate session-bound
+evidence.
+
+The optional Bob Shell CI/CD controller is repository source, not evidence that an
+authenticated review occurred. Until a protected exact-candidate run creates a
+validated report and a human reviews it, that execution remains `not_completed`.
 
 ## Operating principle
 

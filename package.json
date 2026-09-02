@@ -2,7 +2,7 @@
   "name": "acme-agentic-sdlc-lab",
   "version": "0.1.0",
   "private": true,
-  "description": "Evidence-first, human-governed agentic SDLC lab for a fictional customer-support product.",
+  "description": "IBM Bob, watsonx Orchestrate ADK, and Bob Shell CI/CD case study with evidence-first human release governance.",
   "license": "Apache-2.0",
   "packageManager": "npm@11.17.0",
   "engines": {
@@ -21,7 +21,7 @@
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test:portal && npm run test:api && npm run test:openapi && npm run test:release-scan && npm run test:history-scan && npm run test:documentation-scan && npm run test:sbom && npm run test:licenses && npm run test:release-audit && npm run test:archive-verify && npm run test:python-audit && npm run test:doctor && npm run test:local-environment && npm run test:cleanup",
+    "test": "npm run test:portal && npm run test:api && npm run test:openapi && npm run test:release-scan && npm run test:history-scan && npm run test:documentation-scan && npm run test:sbom && npm run test:licenses && npm run test:release-audit && npm run test:archive-verify && npm run test:python-audit && npm run test:doctor && npm run test:local-environment && npm run test:bob-review && npm run test:cleanup",
     "test:portal": "npm run test -w apps/portal",
     "test:api": "npm run test -w services/support-api",
     "test:openapi": "redocly lint contracts/support-api.yaml",
@@ -35,6 +35,7 @@
     "test:python-audit": "node --test scripts/python-audit.test.mjs",
     "test:doctor": "node --test scripts/doctor.test.mjs",
     "test:local-environment": "node --test scripts/local-environment.test.mjs",
+    "test:bob-review": "node --test scripts/bob-gate-evidence.test.mjs scripts/bob-review-report.test.mjs scripts/bob-review-workspace.test.mjs scripts/bob-shell-review.test.mjs scripts/bob-workflow.test.mjs",
     "test:cleanup": "node --test scripts/cleanup-local.test.mjs",
     "e2e:local": "npm run test -w tests/e2e",
     "e2e:built": "npm run build && npm run test:built -w tests/e2e",
@@ -51,13 +52,17 @@
     "licenses:inventory": "node scripts/generate-license-inventory.mjs --output license-inventory.json",
     "verify:archive": "node scripts/verify-clean-archive.mjs",
     "release:audit": "node scripts/release-audit.mjs",
+    "review:bob": "node scripts/bob-shell-review.mjs",
+    "review:bob:validate": "node scripts/validate-bob-review.mjs",
     "reset": "node scripts/cleanup-local.mjs --mode reset --confirm",
     "uninstall:project": "node scripts/cleanup-local.mjs --mode uninstall --confirm",
     "purge:evidence": "node scripts/cleanup-local.mjs --mode evidence --confirm",
     "verify": "npm run verify:web && npm run verify:agent"
   },
   "devDependencies": {
-    "@redocly/cli": "2.47.0"
+    "@redocly/cli": "2.47.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,

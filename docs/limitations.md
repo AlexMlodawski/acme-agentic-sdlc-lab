@@ -16,7 +16,8 @@
 
 ## Release engineering
 
-- The baseline has no release tag.
+- A source checkout cannot establish whether the repository host has a release tag;
+  inspect the exact host and candidate before making a publication claim.
 - The release audit verifies and normalizes evidence but deliberately does not sign,
   tag, publish, deploy, import, promote, or make the human release decision.
 - There is no detached/background production lifecycle; the combined local launcher
@@ -24,8 +25,8 @@
   harness.
 - Reset and uninstall cover a fixed project-local allowlist. They do not remove global
   runtimes, package caches, or the shared Playwright browser cache.
-- Generated SBOM/evidence output is ignored locally and is attached only by the
-  release-audit workflow; that workflow has not been observed on the release host.
+- Generated SBOM/evidence output is ignored locally and may be attached by the
+  release-audit workflow; source presence alone does not prove that hosted run.
 - The combined SBOM describes locked Node/Python components but is not a human-reviewed
   third-party notice or legal-compatibility decision.
 - The scanners cover the tracked tree, all commits reachable from local refs, paths,
@@ -49,9 +50,15 @@
 
 ## Optional IBM integrations
 
-- IBM Bob is not distributed or executed by the repository.
-- No current release commit is attributed to IBM Bob without separate session-bound
+- IBM Bob is not distributed by the repository. The manual workflow is the supported
+  public path and can invoke a separately installed and licensed Bob Shell runtime
+  on its Linux review runner; the low-level controller command is intentionally
+  Linux-only. Authenticated execution for the current candidate is `not_completed`.
+- The maintainer reports Bob-assisted development of this case study, but no exact
+  release commit is independently attributed to Bob without separate session-bound
   provenance.
+- Bob controller, report, workspace-policy, and workflow-contract tests do not
+  substitute for a protected authenticated run.
 - WXO model availability, APIs, ADK behavior, tenant policy, and licensing may change.
 - Local validation does not establish that WXO accepted an agent definition.
 - `source=orchestrate` establishes adapter routing only, not internal tool invocation

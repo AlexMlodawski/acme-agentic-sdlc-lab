@@ -26,6 +26,14 @@ publication. Its release audit binds an exact Git SHA to redacted check output,
 calculates clean-archive and evidence digests, and leaves the decision and any
 external operation to a human maintainer.
 
+The optional Bob Shell path is manual and advisory. Candidate-controlled
+deterministic gates run first on a fresh GitHub-hosted worker without a Bob secret.
+After GitHub records that job as successful, a separate protected ephemeral runner
+creates a fixed same-run pass record locally; no gate artifact moves between jobs.
+The trusted controller then gives Bob the complete tracked source in a pristine
+exact-SHA read workspace plus that record. The resulting recommendation cannot
+override test results or approve release.
+
 ## Verification plane
 
 Vitest checks pure logic and server boundaries. Playwright performs the primary
@@ -43,6 +51,12 @@ with a secret-free environment and reject external browser origins.
 - telemetry is opt-in and application-only;
 - sample evidence is labeled synthetic;
 - no unfinished check is reported as passing.
+- the Bob credential is absent from candidate test execution and supplied only to
+  the final Bob child on a separate ephemeral runner;
+- Bob edit, execute, MCP, skill, task-management, subagent, and mode-switching tool
+  groups are disabled, and a before/after snapshot detects changes to tracked
+  worktree content; `.git` metadata is covered by separate identity/state guards,
+  not by that byte snapshot.
 
 ## Data flow
 

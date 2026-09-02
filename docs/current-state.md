@@ -1,71 +1,74 @@
 # Current state
 
-## Baseline snapshot
+## Source snapshot
 
-This snapshot records the repository before v0.1.0 release-preparation changes. It
-is an inventory, not a release verdict.
-
-| Property | Observed value |
-| --- | --- |
-| Snapshot date | 2026-09-02 |
-| Baseline commit | `d63358866b0e36e793d0261c22a61c070da39cd2` |
-| Host visibility | Private repository |
-| Tracked files | 151 |
-| Reachable commits across fetched local refs | 19 |
-| Git tags | None |
-| Git LFS entries | None observed |
-| Git submodules | None |
-
-The baseline is not a published `v0.1.0` release. A release branch or matching
-working tree does not substitute for an immutable tag and release artifact.
+This document describes the checked-in `v0.1.0` case-study source as of
+2026-09-02. It intentionally does not embed its own commit hash: use
+`git rev-parse HEAD` and `git status --short` to identify the exact candidate being
+evaluated. Repository visibility, branch protection, environments, secrets, runners,
+workflow runs, tags, and releases are host state and cannot be proven by source files.
 
 ## Implemented foundation
 
-- A Next.js customer portal with same-origin server routes.
-- A deterministic Fastify Support API with three fictional order fixtures.
-- A local deterministic assistant provider.
-- A server-side watsonx Orchestrate provider adapter.
-- A Draft agent source package with one read-only order-status tool and one
-  fictional return-policy knowledge source.
-- Optional OpenTelemetry trace export, including a restricted Instana blue SaaS
-  configuration path.
-- An OpenAPI 3.0 contract.
-- Vitest, pytest, contract, release-scan, and Playwright test sources.
-- A read-only GitHub Actions CI workflow.
-- Governance, security, evidence, contribution, licensing, and trademark documents.
+- Next.js customer portal and deterministic local assistant.
+- Fastify Support API with fictional orders and non-persistent support-case
+  acknowledgements.
+- Server-only watsonx Orchestrate provider and MCSP token adapters.
+- Versioned watsonx Orchestrate ADK agent, read-only order tool, knowledge source,
+  offline materializer, validator, fixtures, and Python tests.
+- Optional OTLP/HTTP telemetry path with restricted Instana configuration.
+- OpenAPI contract, unit/integration tests, repository scanners, dependency audits,
+  CycloneDX generation, license metadata inventory, and browser acceptance for both
+  development and production-build profiles.
+- Candidate-bound Quick/Full release audit with redacted, checksummed completion
+  evidence.
+- Manual Bob Shell exact-SHA advisory workflow, split between a GitHub-hosted
+  deterministic-gates job and a separate credentialed ephemeral review job.
+- The fresh review job creates its fixed same-run pass record only after GitHub's
+  service-controlled dependency reports gate success; no gate artifact is transferred.
+- Strict Bob report contract, public-output validation, workspace policy, tracked
+  worktree mutation snapshot, and repository-owned controller/workflow tests.
+- Case-study narrative, facilitator-ready workshop, governance, security, licensing,
+  AI-usage, and trademark documentation.
 
-## Current operating profiles
+## Evidence state
+
+| Capability | Source state | External/runtime claim |
+| --- | --- | --- |
+| Local mock product | Implemented | Must be rerun and evidenced for each exact release candidate |
+| ADK package | Implemented and locally testable | Tenant import and Draft behavior `not_asserted` |
+| WXO portal adapter | Implemented and tested with controlled doubles | Authenticated tenant response, tool use, and retrieval `not_asserted` |
+| Instana adapter | Implemented and locally wire-tested | Tenant receipt, indexing, and correlation `not_asserted` |
+| Bob IDE workflow | Prompts and human gates documented | Maintainer-reported use; private session and commit-level attribution are not published |
+| Bob Shell controller | Implemented and locally contract-tested | Authenticated exact-candidate review `not_completed` |
+| GitHub workflows | Definitions are versioned with bounded permissions and pinned actions | Hosted runs and repository settings require direct observation |
+| Public release | Prepared source and process | Tag, release artifact, publication, and human GO not established by this file |
+
+## Operating profiles
 
 | Profile | Implementation state | Release-claim state |
 | --- | --- | --- |
-| Local/mock | Root launcher starts loopback API and portal with `AGENT_MODE=stub` | In v0.1.0 scope; candidate execution must still be evidenced |
-| WXO Draft adapter | Provider and Draft package exist in source | `not_asserted` for tenant execution |
-| Instana adapter | Restricted OTLP/HTTP configuration exists in source | `not_asserted` for tenant receipt or trace correlation |
+| Local/mock | Loopback launcher forces `AGENT_MODE=stub` and disables telemetry | In scope |
+| WXO Draft | Source package and server adapter | Prepared for separately authorized import and validation; execution `not_asserted` |
+| Instana | Restricted source adapter | Receipt/correlation `not_asserted` |
+| Bob Shell review | Manual two-job workflow and controller | Optional; authenticated run `not_completed` |
 | Replay | No runtime profile or UI | Out of scope |
-| Forgejo pipeline | No implementation | Out of scope |
-| Production/live | No end-to-end deployment profile | Out of scope |
+| Production/Live | No end-to-end deployment profile | Out of scope |
 
-## Material gaps at the baseline
+## Work remaining before a public announcement can claim completed external use
 
-- No tag or immutable v0.1.0 release artifact exists.
-- Version identifiers are not yet aligned to the intended v0.1.0 release.
-- No single release-audit command produces a candidate-bound evidence bundle.
-- The evidence JSON files are synthetic examples, not reports from the baseline.
-- The repository scanner evaluates the tracked working tree, not every historical
-  Git object and ref.
-- Local browser acceptance uses development servers and one primary journey.
-- There is no complete install/up/down/reset/uninstall lifecycle.
-- Optional WXO, Instana, and Bob paths have no direct external-run evidence in this
-  snapshot.
-- Repository-host controls such as branch protection, secret scanning, push
-  protection, and private vulnerability reporting are external state and are not
-  established by source files alone.
+1. Commit the intended candidate and rerun all deterministic gates against that
+   exact SHA.
+2. Review the candidate-specific ownership, notices, assets, dependencies, and
+   public wording.
+3. If claiming WXO Draft use, perform an explicitly authorized Draft import/test and
+   retain sanitized exact-candidate evidence; do not describe it as Live deployment.
+4. If claiming Bob Shell CI/CD execution, configure the protected `bob-review`
+   environment and disposable runner, then complete the manual workflow and review
+   its sanitized report.
+5. Record a human GO/NO-GO for the exact candidate before tagging or publishing.
 
-## Interpretation
-
-The current source is best described as a local reference foundation with optional
-integration seams. It must not be described as a completed autonomous SDLC pipeline,
-a verified live IBM integration, or a production customer-support application.
-
-Verification results produced for another commit, archive, machine, or earlier
-repository state do not automatically transfer to the v0.1.0 candidate.
+The source is best described as an evidence-first IBM Bob and watsonx Orchestrate ADK
+case study with an implemented Bob Shell CI/CD review path. It is not a production
+service, an IBM product, or proof that any optional external system accepted or ran
+the current candidate.

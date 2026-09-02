@@ -15,7 +15,7 @@ or production readiness.
 | WXO Draft agent package | Yes | No; `not_asserted` |
 | WXO read-only order tool | Yes | No tenant invocation claim |
 | Instana OTLP/HTTP exporter path | Yes | No tenant receipt or trace-search claim |
-| IBM Bob choreography | Documentation only | No execution or authorship claim |
+| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Maintainer-reported IDE use; authenticated Shell execution `not_completed`; no commit-level authorship proof |
 | Forgejo workflow | No | Out of scope |
 | Replay profile | No | Out of scope |
 | WXO Live promotion | No | Prohibited by scope |

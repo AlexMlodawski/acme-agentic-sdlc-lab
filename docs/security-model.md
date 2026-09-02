@@ -104,6 +104,15 @@ external service behavior or overall release readiness.
   unreachable/dangling objects and ignored/untracked local files by design.
 - Dependency lockfiles do not eliminate malicious-publisher or compromised-package
   risk.
+- The Bob Shell deterministic-gates job executes candidate-controlled installation
+  and test code. A Git clone is not a sandbox, so that job is separated from the
+  credentialed review job and both require disposable runner boundaries.
+- The deterministic job only runs the fixed commands. GitHub's service-controlled
+  successful dependency starts the fresh advisory job, which creates `gates.json`
+  locally; no gate artifact or candidate test summary crosses into that job.
+- Bob sees the complete tracked exact-candidate source. The byte mutation snapshot
+  covers tracked worktree content, not `.git`; separate Git identity/status guards
+  protect the repository-state boundary.
 - The combined lockfile SBOM does not form a reviewed license/notice bundle.
 - Browser E2E covers one primary and one bounded failure journey in development and
   production-build profiles; it does not exercise every failure or external integration.
@@ -114,8 +123,9 @@ external service behavior or overall release readiness.
 - GitHub branch protection, required reviews, CodeQL, secret scanning, push
   protection, and vulnerability-reporting configuration require direct repository
   setting observations.
-- A release-audit workflow is defined but has not been observed on the repository
-  host; artifact signing and provenance attestation remain absent.
+- Hosted workflow runs, protected-environment rules, authenticated Bob review,
+  artifact signing, and provenance attestation require separate observation; source
+  definitions alone do not prove those controls are active.
 
 ## Release security boundary
 

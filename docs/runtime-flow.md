@@ -76,7 +76,8 @@ an otherwise clean application shutdown into a successful evidence claim.
 - The root launcher has no integrated WXO mode.
 - There is no replay process.
 - There is no production supervisor or combined built-artifact start command.
-- There is no Forgejo or Bob worker.
+- There is no Forgejo or always-on Bob worker. An optional GitHub workflow can use a
+  separately administered ephemeral Bob Shell runner after manual exact-SHA dispatch.
 - There is no automatic import, deployment, or Live promotion process.
 
 Those absences are deliberate v0.1.0 scope boundaries, not implicit future
