@@ -57,7 +57,7 @@
     "verify": "npm run verify:web && npm run verify:agent"
   },
   "devDependencies": {
-    "@redocly/cli": "2.47.0"
+    "@redocly/cli": "2.49.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
