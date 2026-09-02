@@ -264,8 +264,9 @@ export function safeEnvironment(environment = process.env) {
   };
 }
 
-function isNpmCliPath(value) {
-  if (typeof value !== "string" || !path.isAbsolute(value)) return false;
+function isNpmCliPath(value, platform = process.platform) {
+  const platformPath = platform === "win32" ? path.win32 : path.posix;
+  if (typeof value !== "string" || !platformPath.isAbsolute(value)) return false;
   return /(?:^|[\\/])npm-cli\.js$/iu.test(value);
 }
 
@@ -276,7 +277,7 @@ export function resolveNpmInvocation(
   if (!Array.isArray(args) || args.some((arg) => typeof arg !== "string")) {
     throw new TypeError("npm arguments must be strings.");
   }
-  if (isNpmCliPath(environment.npm_execpath)) {
+  if (isNpmCliPath(environment.npm_execpath, platform)) {
     return { command: nodeExecutable, args: [environment.npm_execpath, ...args] };
   }
   if (platform === "win32") {
