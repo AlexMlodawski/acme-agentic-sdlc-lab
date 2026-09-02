@@ -1,0 +1,22 @@
+{
+  "schema": "acme-release-evidence-v1",
+  "sample": true,
+  "label": "NON-PRODUCTION SYNTHETIC SAMPLE",
+  "candidateSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "profile": "local-zero-secret",
+  "result": "pass",
+  "checks": {
+    "candidateIdentity": "pass",
+    "orderJourney": "pass",
+    "assistantSemantics": "pass",
+    "supportCase": "pass",
+    "accessibility": "not_asserted",
+    "watsonxOrchestrate": "not_asserted",
+    "instanaCorrelation": "not_asserted"
+  },
+  "provenance": {
+    "assistant": "deterministic-local-provider",
+    "customerData": "fictional",
+    "externalCalls": false
+  }
+}

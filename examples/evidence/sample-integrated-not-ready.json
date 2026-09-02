@@ -1,0 +1,25 @@
+{
+  "schema": "acme-release-evidence-v1",
+  "sample": true,
+  "label": "NON-PRODUCTION SYNTHETIC SAMPLE",
+  "candidateSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "profile": "integrated-draft",
+  "result": "fail",
+  "summary": "The user-visible answer omitted a required safe fact.",
+  "checks": {
+    "candidateIdentity": "pass",
+    "orderJourney": "pass",
+    "assistantSemantics": "fail",
+    "supportCase": "not_completed",
+    "accessibility": "not_completed",
+    "watsonxOrchestrateRouting": "pass",
+    "toolInvocation": "not_asserted",
+    "knowledgeRetrieval": "not_asserted",
+    "instanaCorrelation": "not_completed"
+  },
+  "provenance": {
+    "customerData": "fictional",
+    "rawReasoningIncluded": false,
+    "credentialsIncluded": false
+  }
+}

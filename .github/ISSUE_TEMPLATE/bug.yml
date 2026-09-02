@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible problem using fictional data only.
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, private tenant URLs, or production data.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Git revision
+    validations:
+      required: true

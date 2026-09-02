@@ -1,0 +1,67 @@
+{
+  "name": "acme-agentic-sdlc-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evidence-first, human-governed agentic SDLC lab for a fictional customer-support product.",
+  "license": "Apache-2.0",
+  "packageManager": "npm@11.17.0",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "workspaces": [
+    "apps/portal",
+    "services/support-api",
+    "tests/e2e"
+  ],
+  "scripts": {
+    "install:project": "npm ci --ignore-scripts && uv sync --project agents/store_support_agent --locked --python 3.12.10",
+    "dev": "node scripts/dev-local.mjs",
+    "up": "npm run dev",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test:portal && npm run test:api && npm run test:openapi && npm run test:release-scan && npm run test:history-scan && npm run test:documentation-scan && npm run test:sbom && npm run test:licenses && npm run test:release-audit && npm run test:archive-verify && npm run test:python-audit && npm run test:doctor && npm run test:local-environment && npm run test:cleanup",
+    "test:portal": "npm run test -w apps/portal",
+    "test:api": "npm run test -w services/support-api",
+    "test:openapi": "redocly lint contracts/support-api.yaml",
+    "test:release-scan": "node --test scripts/public-release-scan.test.mjs",
+    "test:history-scan": "node --test scripts/history-release-scan.test.mjs",
+    "test:documentation-scan": "node --test scripts/documentation-scan.test.mjs",
+    "test:sbom": "node --test scripts/generate-sbom.test.mjs",
+    "test:licenses": "node --test scripts/generate-license-inventory.test.mjs",
+    "test:release-audit": "node --test scripts/release-audit.test.mjs",
+    "test:archive-verify": "node --test scripts/verify-clean-archive.test.mjs",
+    "test:python-audit": "node --test scripts/python-audit.test.mjs",
+    "test:doctor": "node --test scripts/doctor.test.mjs",
+    "test:local-environment": "node --test scripts/local-environment.test.mjs",
+    "test:cleanup": "node --test scripts/cleanup-local.test.mjs",
+    "e2e:local": "npm run test -w tests/e2e",
+    "e2e:built": "npm run build && npm run test:built -w tests/e2e",
+    "screenshot:docs": "node scripts/capture-docs-screenshot.mjs",
+    "secret:scan": "node scripts/public-release-scan.mjs",
+    "history:scan": "node scripts/history-release-scan.mjs",
+    "documentation:scan": "node scripts/documentation-scan.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "preflight": "npm run doctor && npm run secret:scan && npm run history:scan && npm run documentation:scan",
+    "audit:python": "node scripts/python-audit.mjs",
+    "verify:web": "npm run secret:scan && npm run lint && npm run typecheck && npm test && npm run build",
+    "verify:agent": "uv sync --project agents/store_support_agent --locked --python 3.12.10 && uv run --project agents/store_support_agent python agents/store_support_agent/scripts/validate_local.py && uv run --project agents/store_support_agent pytest -q agents/store_support_agent/tests",
+    "sbom": "node scripts/generate-sbom.mjs sbom.cdx.json",
+    "licenses:inventory": "node scripts/generate-license-inventory.mjs --output license-inventory.json",
+    "verify:archive": "node scripts/verify-clean-archive.mjs",
+    "release:audit": "node scripts/release-audit.mjs",
+    "reset": "node scripts/cleanup-local.mjs --mode reset --confirm",
+    "uninstall:project": "node scripts/cleanup-local.mjs --mode uninstall --confirm",
+    "purge:evidence": "node scripts/cleanup-local.mjs --mode evidence --confirm",
+    "verify": "npm run verify:web && npm run verify:agent"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.47.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "protobufjs@7.6.6": true,
+    "unrs-resolver@1.12.2": true
+  }
+}

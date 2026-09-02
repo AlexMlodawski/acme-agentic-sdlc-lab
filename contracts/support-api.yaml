@@ -1,0 +1,345 @@
+openapi: 3.0.3
+info:
+  title: Acme Support API
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  description: >-
+    Deterministic local API for the Acme Agentic SDLC Lab.
+    The service contains no production customer data and no persistent state.
+    The global bearer requirement describes the secure external deployment
+    profile; health and readiness are explicitly public. The local server is a
+    compatibility profile and may disable authentication only when
+    SUPPORT_API_REQUIRE_AUTH is false.
+servers:
+  - url: http://127.0.0.1:4000
+    description: Local compatibility profile; authentication may be disabled
+  - url: https://support-api.example.invalid
+    description: Placeholder for the operator-supplied HTTPS demo endpoint; bearer authentication is required
+x-runtime-profiles:
+  local:
+    server: http://127.0.0.1:4000
+    authentication: optional
+    purpose: Offline development and deterministic local acceptance.
+  external:
+    server: operator-supplied HTTPS endpoint
+    authentication: required bearer
+    purpose: Optional watsonx Orchestrate Draft integration acceptance.
+tags:
+  - name: Health
+    description: Process health and readiness checks.
+  - name: Orders
+    description: Read-only access to deterministic fictional order fixtures.
+  - name: Support cases
+    description: In-memory creation of deterministic fictional support cases.
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      tags: [Health]
+      operationId: getHealth
+      summary: Check whether the process can serve requests
+      responses:
+        "200":
+          description: The API is healthy.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                service: acme-support-api
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /ready:
+    get:
+      security: []
+      tags: [Health]
+      operationId: getReadiness
+      summary: Check whether the process is ready to serve requests
+      responses:
+        "200":
+          description: The API is ready.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                service: acme-support-api
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: Return one deterministic fictional order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Fictional Acme order identifier.
+          schema:
+            type: string
+            pattern: ^[Aa][Cc][Mm][Ee]-[0-9]{4}$
+          example: ACME-1042
+        - $ref: "#/components/parameters/OptionalCorrelationId"
+      responses:
+        "200":
+          description: The matching order record.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example:
+                orderId: ACME-1042
+                customerName: Jordan Lee
+                status: delayed
+                estimatedDeliveryDate: "2026-08-26"
+                carrier: Acme Express
+                trackingNumber: AX-88271042
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: No order exists for the supplied identifier.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: Not Found
+                code: ORDER_NOT_FOUND
+                correlationId: ACME-LAB-LOCAL
+                message: No order was found for ACME-4040.
+  /support-cases:
+    post:
+      tags: [Support cases]
+      operationId: createSupportCase
+      summary: Return a deterministic support-case acknowledgment
+      description: >-
+        Lab clients normally send X-Correlation-ID. The API safely falls back
+        to ACME-LAB-LOCAL when a client omits it.
+      parameters:
+        - $ref: "#/components/parameters/OptionalCorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupportCaseRequest"
+            examples:
+              valid:
+                summary: Contract-compliant request
+                value:
+                  orderId: ACME-1042
+                  priority: high
+                  description: The order is delayed and the customer needs assistance.
+      responses:
+        "201":
+          description: A synthetic, non-persistent support-case acknowledgment was generated.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportCaseCreated"
+              example:
+                caseId: CASE-20260827-001
+                status: created
+                priority: high
+                correlationId: ACME-LAB-LOCAL
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: >-
+        Opaque demonstration token. Internet-facing deployments set
+        SUPPORT_API_TOKEN and supply the same value through an approved
+        server-side or watsonx Orchestrate credential boundary. Local
+        development may leave SUPPORT_API_TOKEN unset to disable authentication.
+  parameters:
+    OptionalCorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: false
+      description: >-
+        Safe request correlation identifier. If omitted, the local demo default
+        ACME-LAB-LOCAL is used.
+      schema:
+        $ref: "#/components/schemas/CorrelationId"
+      example: ACME-LAB-LOCAL
+  headers:
+    CorrelationId:
+      description: Correlation identifier associated with the request.
+      schema:
+        $ref: "#/components/schemas/CorrelationId"
+      example: ACME-LAB-LOCAL
+    WwwAuthenticate:
+      description: Authentication scheme required by protected API operations.
+      schema:
+        type: string
+        example: Bearer realm="acme-support-api"
+  responses:
+    BadRequest:
+      description: The request failed input validation.
+      headers:
+        X-Correlation-ID:
+          $ref: "#/components/headers/CorrelationId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Bad Request
+            code: REQUEST_VALIDATION_FAILED
+            correlationId: ACME-LAB-LOCAL
+            message: The request did not satisfy the API contract.
+    Unauthorized:
+      description: Bearer authentication is enabled but the token was missing or incorrect.
+      headers:
+        X-Correlation-ID:
+          $ref: "#/components/headers/CorrelationId"
+        WWW-Authenticate:
+          $ref: "#/components/headers/WwwAuthenticate"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Unauthorized
+            code: UNAUTHORIZED
+            correlationId: ACME-LAB-LOCAL
+            message: A valid bearer token is required.
+    InternalServerError:
+      description: The service failed safely without exposing internal details.
+      headers:
+        X-Correlation-ID:
+          $ref: "#/components/headers/CorrelationId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Internal Server Error
+            code: UNEXPECTED_ERROR
+            correlationId: ACME-LAB-LOCAL
+  schemas:
+    CorrelationId:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: ^[A-Za-z0-9][A-Za-z0-9._:/-]*$
+      default: ACME-LAB-LOCAL
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+          enum: [acme-support-api]
+    Order:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - customerName
+        - status
+        - estimatedDeliveryDate
+        - carrier
+        - trackingNumber
+      properties:
+        orderId:
+          type: string
+          pattern: ^ACME-[0-9]{4}$
+        customerName:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum: [processing, shipped, delayed, delivered]
+        estimatedDeliveryDate:
+          type: string
+          format: date
+        carrier:
+          type: string
+          minLength: 1
+        trackingNumber:
+          type: string
+          minLength: 1
+    SupportCaseRequest:
+      type: object
+      additionalProperties: false
+      required: [orderId, priority, description]
+      properties:
+        orderId:
+          type: string
+          pattern: ^ACME-[0-9]{4}$
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        description:
+          type: string
+          minLength: 10
+          maxLength: 1000
+    SupportCaseCreated:
+      type: object
+      additionalProperties: false
+      required: [caseId, status, priority, correlationId]
+      properties:
+        caseId:
+          type: string
+          pattern: ^CASE-[0-9]{8}-[0-9]{3}$
+        status:
+          type: string
+          enum: [created]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        correlationId:
+          $ref: "#/components/schemas/CorrelationId"
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error, code, correlationId]
+      properties:
+        error:
+          type: string
+          enum: [Bad Request, Unauthorized, Not Found, Internal Server Error]
+        code:
+          type: string
+          minLength: 1
+        correlationId:
+          $ref: "#/components/schemas/CorrelationId"
+        message:
+          type: string
+          minLength: 1

@@ -1,0 +1,40 @@
+{
+  "name": "@acme/support-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic, observability-ready API for the Acme Agentic SDLC Lab.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.3.0",
+    "@opentelemetry/api": "1.9.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.221.0",
+    "@opentelemetry/instrumentation-http": "0.221.0",
+    "@opentelemetry/resources": "2.10.0",
+    "@opentelemetry/sdk-node": "0.221.0",
+    "fastify": "5.12.1"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "12.1.0",
+    "@types/node": "24.13.3",
+    "pino": "10.3.1",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "yaml": "2.9.0"
+  }
+}

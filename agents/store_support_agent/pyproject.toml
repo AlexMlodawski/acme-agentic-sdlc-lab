@@ -1,0 +1,28 @@
+[project]
+name = "acme-store-support-agent"
+version = "0.1.0"
+description = "Portable Draft-only source package for the fictional Acme Store Support Agent"
+license = "Apache-2.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "httpx==0.28.1",
+  "ibm-watsonx-orchestrate==2.15.0",
+  "pydantic==2.13.4",
+  "pyyaml==6.0.3",
+]
+
+[dependency-groups]
+audit = [
+  "pip-audit==2.10.1",
+]
+dev = [
+  "pytest==9.1.1",
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers -ra"
+testpaths = ["tests"]
+
+[tool.uv]
+package = false
+default-groups = ["dev"]
