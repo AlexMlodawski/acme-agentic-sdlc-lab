@@ -352,7 +352,7 @@ test("blocks a direct personal address in commit metadata without disclosing it"
   assert.match(result.stdout, /HISTORY_DIRECT_METADATA_EMAILS=1/u);
   assert.match(result.stdout, /HISTORY_METADATA_PRIVACY_SCAN=FAIL/u);
   assert.match(result.stdout, /HISTORY_RELEASE_SCAN=FAIL/u);
-  assert.doesNotMatch(result.stdout + result.stderr, new RegExp(directAddress, "u"));
+  assert.equal((result.stdout + result.stderr).includes(directAddress), false);
   assertMachineOnlyOutput(result);
 });
 

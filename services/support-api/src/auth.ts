@@ -1,9 +1,12 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
 
 const BEARER_AUTHORIZATION = /^Bearer ([^\s]+)$/i;
 
-function digest(value: string): Buffer {
-  return createHash("sha256").update(value, "utf8").digest();
+function constantTimeEqual(left: string, right: string): boolean {
+  const leftBuffer = Buffer.from(left, "utf8");
+  const rightBuffer = Buffer.from(right, "utf8");
+  return leftBuffer.length === rightBuffer.length
+    && timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 export function hasValidBearerToken(
@@ -25,5 +28,5 @@ export function hasValidBearerToken(
     return false;
   }
 
-  return timingSafeEqual(digest(match[1]), digest(expectedToken));
+  return constantTimeEqual(match[1], expectedToken);
 }
