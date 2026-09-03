@@ -13,8 +13,8 @@ working tree, archive, machine, or external-service session.
 ## Automated gates
 
 - [ ] `npm ci --ignore-scripts` completed from the lockfile.
-- [ ] `npm run release:audit -- --mode Full --candidate v0.1.0-rc.1` returned zero.
-- [ ] `release-evidence/v0.1.0-rc.1/evidence-complete.json` exists, reports
+- [ ] `npm run release:audit -- --mode Full --candidate v0.1.0-rc.4` returned zero.
+- [ ] `release-evidence/v0.1.0-rc.4/evidence-complete.json` exists, reports
   `completion_status: pass`, and matches the candidate, source SHA, report, and checksums.
 - [ ] Every hard-gate step in `release-evidence/v0.1.0-rc.1/report.json` is `pass`.
 - [ ] Current-tree and reachable-history scans are `pass`.
@@ -35,7 +35,7 @@ working tree, archive, machine, or external-service session.
 - [ ] Repository visibility, Actions, branch protection/rulesets, secret scanning,
   push protection, vulnerability reporting, and least-privilege workflow permissions
   were observed in the release repository.
-- [ ] Optional WXO, Instana, Forgejo, and IBM Bob claims remain `not_asserted` unless
+- [ ] Account-backed WXO, optional Instana, Forgejo, and IBM Bob claims remain `not_asserted` unless
   candidate-bound evidence from an explicitly authorized session is attached.
 - [ ] If Bob Shell execution is claimed, the manual workflow ran for this exact SHA,
   its deterministic and credentialed jobs were separate, GitHub's successful

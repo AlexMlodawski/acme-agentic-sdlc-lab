@@ -15,6 +15,12 @@ based on Keep a Changelog, and the project intends to use Semantic Versioning.
 - Release scope, runtime, data-flow, threat-model, and lifecycle guidance.
 - An end-to-end IBM Bob and watsonx Orchestrate ADK case-study narrative plus a
   facilitator-ready workshop.
+- A staged Bob IDE workshop flow with ready-to-paste plan, local materialization,
+  WXO Draft import, portal-connect, and evidence-review prompts.
+- Optional direct Instana Blue SaaS OTLP/HTTP export in the guided launcher with a
+  masked Agent Key prompt and per-session synthetic correlation ID.
+- A visible assistant-source badge and three bounded Draft starter scenarios for
+  order status, return policy, and the human-controlled case-creation boundary.
 - A manual two-job Bob Shell advisory-review workflow with service-controlled gate
   ordering, a locally created same-run pass record, complete exact-SHA tracked-source
   review, isolated checkout, restricted tools, tracked-worktree mutation detection,
@@ -29,6 +35,10 @@ based on Keep a Changelog, and the project intends to use Semantic Versioning.
 - Updated the locked Python test dependency to a non-vulnerable release.
 - Repositioned the public README around the Bob IDE to ADK to CI/CD learning path,
   while preserving explicit external-evidence and human-approval boundaries.
+- Extended current-tree and full-history release scans to detect IBM Bob API-key
+  signatures without retaining or printing matched values.
+- Documented ADK 2.15 Draft chat as a foreground TTY session with an explicit `q`
+  exit so workshop automation cannot loop on non-interactive EOF.
 
 ### Removed
 

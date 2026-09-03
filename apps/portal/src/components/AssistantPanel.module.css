@@ -160,6 +160,22 @@
   text-transform: uppercase;
 }
 
+.assistantMsgMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.assistantSource {
+  padding: var(--space-2) var(--space-6);
+  border: var(--space-1) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
 .assistantMsgUser p {
   padding: var(--space-10) var(--space-14);
   border-radius: var(--radius-sm) var(--radius-sm) var(--space-3) var(--radius-sm);

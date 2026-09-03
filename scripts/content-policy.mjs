@@ -1,6 +1,7 @@
 const HIGH_CONFIDENCE_SECRETS = [
   /-----BEGIN (?:(?:ENCRYPTED|RSA|EC|DSA|OPENSSH) PRIVATE KEY|PRIVATE KEY|PGP PRIVATE KEY BLOCK)-----/u,
   /\b(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|glpat-[A-Za-z0-9_-]{20,}|npm_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,})\b/u,
+  /\bbob_prod_bob-apikey_[A-Za-z0-9_-]{32,}\b/u,
   /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/u,
   /\bAIza[0-9A-Za-z_-]{30,}\b/u,
   /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/u,
@@ -8,14 +9,16 @@ const HIGH_CONFIDENCE_SECRETS = [
 ];
 
 const EMBEDDED_CREDENTIAL_URL = /https?:\/\/([^\s/@:]+):([^\s/@]+)@([^\s/]+)/gimu;
-const PROVIDER_CREDENTIAL_NAME = String.raw`(?:WXO_API_KEY|INSTANA_AGENT_KEY|(?:[A-Z][A-Z0-9]*_)+API_TOKEN|x-instana-key)`;
+const PROVIDER_CREDENTIAL_NAME = String.raw`(?:BOB_API_KEY|WXO_API_KEY|INSTANA_AGENT_KEY|(?:[A-Z][A-Z0-9]*_)+API_TOKEN|x-instana-key)`;
 const PROVIDER_VALUE_PATTERNS = [
   {
     pattern: new RegExp(
-      String.raw`(?:^|[\0\r\n{,;])\s*(?:(?:export|const|let|var|set)\s+)?(?:(?:process\.)?env\.|\$env:)?["']?${PROVIDER_CREDENTIAL_NAME}["']?\s*(?:=|:)\s*([^\r\n]*)`,
+      String.raw`(?:^|[\0\r\n{,;])\s*(?:(?:export|const|let|var|set)\s+)?(?:(?:process\.)?env\.|\$env:)?["']?(${PROVIDER_CREDENTIAL_NAME})["']?\s*(?:=|:)\s*([^\r\n]*)`,
       "gimu",
     ),
     codeReference: "qualified",
+    credentialGroup: 1,
+    valueGroup: 2,
   },
   {
     pattern: new RegExp(
@@ -156,14 +159,20 @@ function isQualifiedCodeReference(value) {
     && (value.includes(".") || value.includes("[") || value.includes("("));
 }
 
-function providerValueIsAllowed(rawValue, codeReference) {
+function providerValueIsAllowed(rawValue, codeReference, credentialName = "") {
   const candidate = extractedValue(rawValue);
   if (isExplicitPlaceholder(candidate.value)) return true;
   if (candidate.quoted) return false;
   if (candidate.value === "(") return true;
   if (EXACT_UNQUOTED_ANNOTATION.test(candidate.value)) return true;
   if (codeReference === "any") return isUnquotedCodeReference(candidate.value);
-  if (codeReference === "qualified") return isQualifiedCodeReference(candidate.value);
+  if (codeReference === "qualified") {
+    return isQualifiedCodeReference(candidate.value)
+      || (
+        credentialName.toUpperCase() === "BOB_API_KEY"
+        && isUnquotedCodeReference(candidate.value)
+      );
+  }
   return false;
 }
 
@@ -198,9 +207,15 @@ function escapedSeparatorVariants(value) {
 }
 
 export function containsOpaqueProviderCredential(text) {
-  for (const { pattern, codeReference } of PROVIDER_VALUE_PATTERNS) {
+  for (const {
+    pattern,
+    codeReference,
+    credentialGroup = 0,
+    valueGroup = 1,
+  } of PROVIDER_VALUE_PATTERNS) {
     for (const match of text.matchAll(pattern)) {
-      if (!providerValueIsAllowed(match[1], codeReference)) return true;
+      const credentialName = credentialGroup === 0 ? "" : match[credentialGroup];
+      if (!providerValueIsAllowed(match[valueGroup], codeReference, credentialName)) return true;
     }
   }
   for (const pattern of BEARER_VALUE_PATTERNS) {

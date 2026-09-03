@@ -1,19 +1,46 @@
-# Business requirement and plan-only instruction
+# Bob IDE stage 1 — plan the Draft agent
 
-Improve the delayed-order journey so the contextual assistant may recommend a
-support case after explaining the order status, but must never create or submit
-the case automatically. The customer must review the prefilled order context,
-choose the priority, and explicitly submit.
+We are preparing the fictional Acme Store Support Agent for a watsonx
+Orchestrate Draft workshop. The backend, portal adapter, read-only Python tool,
+knowledge source, agent template, fixtures, and tests already exist. Do not
+redesign or replace them.
 
-Acceptance criteria:
+Inspect these exact sources:
 
-- preserve the current customer portal design and keyboard accessibility;
-- reuse the existing server-side provider and Support API boundaries;
-- keep all credentials out of browser code;
-- preserve the `priority` request contract;
-- include focused unit and browser acceptance coverage;
-- do not weaken error, retry, reset, or evidence-honesty behavior.
+- `agents/store_support_agent/agents/store_support_agent.template.yaml`;
+- `agents/store_support_agent/tools/get_order_status.py`;
+- `agents/store_support_agent/tools/requirements.txt`;
+- `agents/store_support_agent/knowledge_bases/acme_return_policy.yaml`;
+- `agents/store_support_agent/knowledge/return-policy.txt`;
+- `agents/store_support_agent/scripts/materialize_agent.py`;
+- `apps/portal/src/lib/agent/OrchestrateAgentProvider.ts`; and
+- `docs/ibm-integrations.md`.
 
-Inspect the repository and produce a concrete implementation and verification
-plan. Do not modify files, run mutating commands, or create a commit. Stop after
-the plan for human review.
+Produce a concrete plan for this sequence:
+
+1. verify the pinned ADK and the selected remote environment without exposing
+   its credential;
+2. read the exact available model IDs from that tenant;
+3. materialize a tenant-specific agent file under the ignored `.generated/`
+   directory;
+4. run offline validation;
+5. inspect existing Draft resources for name collisions;
+6. after a separate human authorization, import or safely update only
+   `get_order_status`, `acme_return_policy`, and `store_support_agent` in Draft;
+7. verify the Draft agent and connect the existing portal through
+   `npm run guided`.
+
+Non-negotiable boundaries:
+
+- make no file change and run no mutating command in this stage;
+- never ask for an API key in Bob chat and never print, store, or paste one;
+- never use a browser URL where the WXO service instance API URL is required;
+- never deploy or promote an agent to Live;
+- never invent a model ID, endpoint, resource ID, or successful result;
+- treat agent routing, tool invocation, knowledge retrieval, and external trace
+  receipt as separate claims; and
+- stop after the plan for human review.
+
+End with a short readiness table containing `ready`, `missing`, or
+`needs-human-authorization` for ADK, remote environment, model, Draft
+connection, tool, knowledge base, agent, portal, and Instana.

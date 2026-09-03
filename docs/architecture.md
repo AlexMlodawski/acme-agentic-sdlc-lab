@@ -12,11 +12,12 @@ responses.
 
 ## Agent plane
 
-The default provider is deterministic and local. The optional provider calls a
-watsonx Orchestrate agent only when explicitly selected and fully configured;
+The default no-credential provider is deterministic and local. The primary
+workshop path calls a watsonx Orchestrate agent only when the account-backed
+provider is explicitly selected and fully configured;
 it does not fall back to the stub after an integrated failure.
 
-The optional Draft package contains one read-only order tool and one fictional
+The Draft workshop package contains one read-only order tool and one fictional
 return-policy knowledge base. Tenant import remains a human-owned operation.
 
 ## Delivery plane

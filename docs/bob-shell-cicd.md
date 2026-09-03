@@ -8,12 +8,12 @@ The repository now ships a manual exact-candidate controller in
 and repository-owned tests. Those source controls are implemented and testable
 without a Bob credential.
 
-**Authenticated Bob Shell execution has not been completed for the current
-candidate.** No generated report is committed. Until an authorized run creates sanitized,
-candidate-bound evidence, the narrower execution claim is `not_completed`.
-Accordingly, the public claim “Bob Shell reviewed this candidate” is `not_asserted`.
-These labels describe different things: an unfinished execution versus a claim the
-available evidence cannot support.
+No generated Bob report is committed to the source tree. Authenticated execution
+status is therefore determined separately for each exact candidate from the
+validated artifact of its protected workflow run. Without that artifact, the public
+claim “Bob Shell reviewed this candidate” is `not_asserted`; a run that started but
+did not finish is `not_completed`. These labels describe different things: an
+unfinished execution versus a claim the available evidence cannot support.
 
 ## Intended role
 
@@ -369,8 +369,7 @@ as successful.
 
 ## Evidence needed before making the review claim
 
-To support the currently `not_asserted` claim that Bob Shell reviewed a candidate,
-retain sanitized evidence
+To support a claim that Bob Shell reviewed a candidate, retain sanitized evidence
 showing:
 
 1. the exact repository SHA and clean checkout;

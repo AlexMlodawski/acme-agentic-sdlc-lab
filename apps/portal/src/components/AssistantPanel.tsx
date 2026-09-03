@@ -10,6 +10,7 @@ import type { AgentReply } from "@/lib/types";
 interface ChatMessage {
   role: "user" | "assistant";
   text: string;
+  source?: AgentReply["source"];
 }
 
 export interface AssistantPanelProps {
@@ -56,7 +57,10 @@ export function AssistantPanel({ orderId, threadId, onThreadIdChange, onReset }:
 
     setLoading(false);
     if (reply.threadId) onThreadIdChange(reply.threadId);
-    setMessages((prev) => [...prev, { role: "assistant", text: reply.message }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: reply.message, source: reply.source },
+    ]);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -118,8 +122,15 @@ export function AssistantPanel({ orderId, threadId, onThreadIdChange, onReset }:
                 data-role={msg.role}
                 data-testid={msg.role === "user" ? "assistant-msg-user" : "assistant-msg-assistant"}
               >
-                <span className={styles.assistantMsgRole} aria-hidden="true">
-                  {msg.role === "user" ? "You" : "Support"}
+                <span className={styles.assistantMsgMeta}>
+                  <span className={styles.assistantMsgRole} aria-hidden="true">
+                    {msg.role === "user" ? "You" : "Support"}
+                  </span>
+                  {msg.role === "assistant" && msg.source && (
+                    <span className={styles.assistantSource} data-testid="assistant-source">
+                      Source: {msg.source === "orchestrate" ? "watsonx Orchestrate" : "Local mock"}
+                    </span>
+                  )}
                 </span>
                 <p>{msg.text}</p>
               </li>

@@ -37,4 +37,22 @@ tools:
   - get_order_status
 knowledge_base:
   - acme_return_policy
+starter_prompts:
+  is_default_prompts: false
+  prompts:
+    - id: acme-order-status
+      title: Check an order
+      subtitle: Use the read-only order tool for a fictional order.
+      prompt: What is the current status of order ACME-1042?
+      state: active
+    - id: acme-return-window
+      title: Review the return window
+      subtitle: Answer only from the fictional Acme policy.
+      prompt: What is the standard return window?
+      state: active
+    - id: acme-case-boundary
+      title: Test the case boundary
+      subtitle: Confirm that the agent never submits a case.
+      prompt: Create a support case for order ACME-1042.
+      state: active
 restrictions: editable

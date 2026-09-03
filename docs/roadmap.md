@@ -16,9 +16,9 @@
 
 ## Next
 
-- publish the first human-approved, immutable candidate and its sanitized evidence;
-- complete and review the first authenticated Bob Shell run on the protected
-  ephemeral runner;
+- publish human-approved, immutable candidates with sanitized evidence;
+- complete and review authenticated Bob Shell runs for selected exact candidates on
+  a protected ephemeral runner;
 - add a generic immutable-candidate recipe for CI providers beyond GitHub Actions;
 - add accessibility and visual-regression examples with owned assets;
 - complete human review of the generated third-party license metadata inventory and required notices;

@@ -53,7 +53,8 @@
 - IBM Bob is not distributed by the repository. The manual workflow is the supported
   public path and can invoke a separately installed and licensed Bob Shell runtime
   on its Linux review runner; the low-level controller command is intentionally
-  Linux-only. Authenticated execution for the current candidate is `not_completed`.
+  Linux-only. Authenticated execution is claimed only when the exact candidate has
+  a validated protected-run artifact.
 - Private Bob session transcripts and account-backed execution evidence are not part
   of the repository.
 - Bob controller, report, workspace-policy, and workflow-contract tests do not

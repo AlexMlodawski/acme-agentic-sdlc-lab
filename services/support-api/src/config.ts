@@ -112,11 +112,12 @@ function parseCorrelationId(value: string | undefined): string {
 }
 
 function validateInstanaAgentKey(value: string | undefined): string {
+  const raw = value ?? "";
   const normalized = optionalNonEmpty(value);
   if (
     normalized === undefined ||
-    normalized.length > 4_096 ||
-    /[\u0000-\u001f\u007f]/u.test(normalized)
+    raw.length > 4_096 ||
+    /[\u0000-\u001f\u007f]/u.test(raw)
   ) {
     throw new Error(
       "INSTANA_AGENT_KEY is required and must be a bounded single-line value",
@@ -200,7 +201,8 @@ export function loadConfig(
     );
   }
   const endpoint = optionalNonEmpty(environment.OTEL_EXPORTER_OTLP_ENDPOINT);
-  const instanaAgentKey = optionalNonEmpty(environment.INSTANA_AGENT_KEY);
+  const instanaAgentKeyRaw = environment.INSTANA_AGENT_KEY;
+  const instanaAgentKey = optionalNonEmpty(instanaAgentKeyRaw);
   const instanaEndpoint = optionalNonEmpty(
     environment.INSTANA_OTLP_HTTP_ENDPOINT,
   );
@@ -225,7 +227,7 @@ export function loadConfig(
     : undefined;
   const instanaHeaders = instanaConfigured
     ? {
-        "x-instana-key": validateInstanaAgentKey(instanaAgentKey),
+        "x-instana-key": validateInstanaAgentKey(instanaAgentKeyRaw),
         "x-instana-host": validateInstanaHost(instanaHost),
       }
     : undefined;
