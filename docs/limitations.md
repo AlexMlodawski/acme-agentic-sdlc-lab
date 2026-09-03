@@ -16,16 +16,17 @@
 
 ## Release engineering
 
-- The baseline has no release tag.
+- A source checkout cannot establish whether the repository host has a release tag;
+  inspect the exact host and candidate before making a publication claim.
 - The release audit verifies and normalizes evidence but deliberately does not sign,
   tag, publish, deploy, import, promote, or make the human release decision.
-- There is no detached/background production lifecycle; the combined local launcher
-  is foreground-owned, and production profiles exist only inside the bounded browser
-  harness.
+- There is no detached/background production lifecycle; the local and guided
+  launchers are foreground-owned, and production profiles exist only inside the
+  bounded browser harness.
 - Reset and uninstall cover a fixed project-local allowlist. They do not remove global
   runtimes, package caches, or the shared Playwright browser cache.
-- Generated SBOM/evidence output is ignored locally and is attached only by the
-  release-audit workflow; that workflow has not been observed on the release host.
+- Generated SBOM/evidence output is ignored locally and may be attached by the
+  release-audit workflow; source presence alone does not prove that hosted run.
 - The combined SBOM describes locked Node/Python components but is not a human-reviewed
   third-party notice or legal-compatibility decision.
 - The scanners cover the tracked tree, all commits reachable from local refs, paths,
@@ -49,14 +50,22 @@
 
 ## Optional IBM integrations
 
-- IBM Bob is not distributed or executed by the repository.
-- No current release commit is attributed to IBM Bob without separate session-bound
-  provenance.
+- IBM Bob is not distributed by the repository. The manual workflow is the supported
+  public path and can invoke a separately installed and licensed Bob Shell runtime
+  on its Linux review runner; the low-level controller command is intentionally
+  Linux-only. Authenticated execution for the current candidate is `not_completed`.
+- Private Bob session transcripts and account-backed execution evidence are not part
+  of the repository.
+- Bob controller, report, workspace-policy, and workflow-contract tests do not
+  substitute for a protected authenticated run.
 - WXO model availability, APIs, ADK behavior, tenant policy, and licensing may change.
 - Local validation does not establish that WXO accepted an agent definition.
 - `source=orchestrate` establishes adapter routing only, not internal tool invocation
   or knowledge retrieval.
-- The repository does not automate WXO import, deployment, or Live promotion.
+- The repository does not automate WXO import, deployment, or Live promotion. The
+  guided launcher can send a server-side account-backed chat request only after an
+  operator supplies the configuration interactively; it does not infer whether the
+  selected agent is Draft or Live.
 - Local OTLP tests do not establish Instana tenant receipt, indexing, retention, or
   trace-search behavior.
 - Instana access for investigation is expected to remain read-only.

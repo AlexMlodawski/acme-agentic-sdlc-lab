@@ -36,6 +36,21 @@ Open `http://127.0.0.1:3000` and:
 
 No external business service or tenant should be contacted in this profile.
 
+## Guided workshop session
+
+For a single operator flow that asks for ports and profile values, lets the human
+choose the final action, requests the application and repository previews from the
+default browser, and keeps a terminal menu active until exit, use:
+
+```text
+npm run guided
+```
+
+The local mock path remains zero-secret. The optional WXO path accepts a
+server-side account-backed configuration in a masked prompt and does not infer
+Draft/Live status, import, deploy, promote, or run Bob Shell. See
+[guided launcher](guided-launcher.md).
+
 ## Run browser acceptance
 
 ```text

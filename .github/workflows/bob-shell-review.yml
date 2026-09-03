@@ -1,0 +1,250 @@
+name: Optional Bob Shell advisory review
+
+"on":
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact lowercase 40-character commit SHA approved for review
+        required: true
+        type: string
+      max_cost:
+        description: Bobcoin ceiling (greater than 0 and no more than 5)
+        required: false
+        default: "0.5"
+        type: string
+      max_turns:
+        description: Agentic turn ceiling (1 through 30)
+        required: false
+        default: "12"
+        type: string
+      accept_license:
+        description: I reviewed and accept the IBM Bob license for this run
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bob-shell-review-${{ inputs.candidate_sha }}
+  cancel-in-progress: false
+
+jobs:
+  deterministic-gates:
+    name: Deterministic exact-candidate gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Validate manual dispatch boundary
+        shell: bash
+        env:
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          DISPATCH_REF: ${{ github.ref }}
+          DISPATCH_REF_TYPE: ${{ github.ref_type }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          LICENSE_ACCEPTED: ${{ inputs.accept_license }}
+        run: |
+          if [[ "$DISPATCH_REF_TYPE" != "branch" ]] || [[ "$DISPATCH_REF" != "refs/heads/$DEFAULT_BRANCH" ]]; then
+            echo "Dispatch this workflow only from the protected default branch." >&2
+            exit 1
+          fi
+          if [[ ! "$REQUESTED_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "candidate_sha must be an exact lowercase 40-character commit SHA." >&2
+            exit 1
+          fi
+          if [[ "$LICENSE_ACCEPTED" != "true" ]]; then
+            echo "The operator must review and explicitly accept the IBM Bob license." >&2
+            exit 1
+          fi
+
+      - name: Check out the trusted controller
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          path: controller
+          persist-credentials: false
+
+      - name: Check out the approved candidate
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          path: candidate
+          persist-credentials: false
+
+      - name: Verify checkout identities
+        shell: bash
+        env:
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          test "$(git -C controller rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$REQUESTED_CANDIDATE_SHA"
+          test -z "$(git -C controller status --porcelain=v1 --untracked-files=all)"
+          test -z "$(git -C candidate status --porcelain=v1 --untracked-files=all)"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: controller/.node-version
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version-file: controller/.python-version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.0"
+          enable-cache: false
+
+      - name: Validate bounded review inputs
+        shell: bash
+        env:
+          REVIEW_MAX_COST: ${{ inputs.max_cost }}
+          REVIEW_MAX_TURNS: ${{ inputs.max_turns }}
+        run: |
+          node -e 'const n=Number(process.env.REVIEW_MAX_COST);if(!Number.isFinite(n)||n<=0||n>5)process.exit(1)'
+          node -e 'const n=Number(process.env.REVIEW_MAX_TURNS);if(!Number.isInteger(n)||n<1||n>30)process.exit(1)'
+
+      - name: Install locked candidate dependencies without lifecycle scripts
+        working-directory: candidate
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Chromium in the disposable gate job
+        working-directory: candidate
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Run repository preflight
+        working-directory: candidate
+        run: npm run preflight
+
+      - name: Run repository verification
+        working-directory: candidate
+        run: npm run verify
+
+      - name: Run development browser acceptance
+        working-directory: candidate
+        run: npm run e2e:local
+
+      - name: Run production-build browser acceptance
+        working-directory: candidate
+        run: npm run e2e:built
+
+  advisory-review:
+    name: Bounded Bob Shell review
+    needs: deterministic-gates
+    runs-on: [self-hosted, linux, bob-shell, ephemeral]
+    environment: bob-review
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out the trusted controller
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          path: controller
+          persist-credentials: false
+
+      - name: Check out the approved candidate
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          path: candidate
+          persist-credentials: false
+
+      - name: Verify checkout identities before credentials exist
+        shell: bash
+        env:
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          test "$(git -C controller rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$REQUESTED_CANDIDATE_SHA"
+          test -z "$(git -C controller status --porcelain=v1 --untracked-files=all)"
+          test -z "$(git -C candidate status --porcelain=v1 --untracked-files=all)"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: controller/.node-version
+          package-manager-cache: false
+
+      - name: Install locked trusted-controller dependencies
+        working-directory: controller
+        run: npm ci --ignore-scripts
+
+      - name: Materialize the service-controlled gate result
+        shell: bash
+        env:
+          GATE_JOB_RESULT: ${{ needs.deterministic-gates.result }}
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          if [[ "$GATE_JOB_RESULT" != "success" ]]; then
+            echo "The deterministic-gates job did not succeed." >&2
+            exit 1
+          fi
+          node controller/scripts/bob-gate-evidence.mjs \
+            --candidate "$REQUESTED_CANDIDATE_SHA" \
+            --controller "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --output "$GITHUB_WORKSPACE/gate-evidence/gates.json"
+
+      - name: Run bounded Bob Shell review
+        id: bob_review
+        working-directory: controller
+        shell: bash
+        env:
+          BOB_API_KEY: ${{ secrets.BOB_API_KEY }}
+          BOB_TEAM_ID: ${{ secrets.BOB_TEAM_ID }}
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          REVIEW_MAX_COST: ${{ inputs.max_cost }}
+          REVIEW_MAX_TURNS: ${{ inputs.max_turns }}
+        run: |
+          args=(
+            --candidate "$REQUESTED_CANDIDATE_SHA"
+            --candidate-repository "$GITHUB_WORKSPACE/candidate"
+            --gate-evidence "$GITHUB_WORKSPACE/gate-evidence/gates.json"
+            --max-cost "$REVIEW_MAX_COST"
+            --max-turns "$REVIEW_MAX_TURNS"
+            --accept-license
+          )
+          if [[ -n "$BOB_TEAM_ID" ]]; then
+            args+=(--team-id "$BOB_TEAM_ID")
+          fi
+          node scripts/bob-shell-review.mjs "${args[@]}"
+
+      - name: Validate sanitized evidence
+        id: validate_report
+        working-directory: controller
+        run: node scripts/validate-bob-review.mjs
+
+      - name: Verify source checkouts stayed unchanged
+        id: source_guard
+        if: ${{ always() }}
+        shell: bash
+        env:
+          REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          test "$(git -C controller rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$REQUESTED_CANDIDATE_SHA"
+          test -z "$(git -C controller status --porcelain=v1 --untracked-files=all)"
+          test -z "$(git -C candidate status --porcelain=v1 --untracked-files=all)"
+          echo "BOB_REVIEW_SOURCE_WRITEBACK=disabled"
+
+      - name: Upload sanitized advisory report
+        if: ${{ steps.bob_review.outcome == 'success' && steps.validate_report.outcome == 'success' && steps.source_guard.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bob-review-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: controller/artifacts/bob-review/
+          include-hidden-files: false
+          if-no-files-found: error
+          overwrite: false
+          retention-days: 14

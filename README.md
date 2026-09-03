@@ -1,21 +1,59 @@
-# Acme Agentic SDLC Lab
+# From idea to controlled release with IBM Bob
 
-An evidence-first, human-governed reference lab for deciding whether an
-AI-assisted customer-support change is ready to release.
+Prepared and maintained by [AlexMlodawski](https://github.com/AlexMlodawski).
+Some code and documentation were drafted or refined with AI assistance; the
+maintainer reviewed, edited, and tested the result. See [AI_USAGE.md](AI_USAGE.md).
 
-The `v0.1.0` scope is deliberately narrow: a deterministic local portal and API,
-real browser acceptance, optional IBM-oriented source adapters, and a candidate-bound
-release audit. It is a learning lab, not a production service or an autonomous
+An independent, end-to-end case study of building an AI support assistant as
+versioned **IBM watsonx Orchestrate Agent Development Kit (ADK)** artifacts with
+help from **IBM Bob**, then validating the software with deterministic tests and an
+optional, bounded **Bob Shell** review in CI/CD.
+
+The fictional Acme product makes the lifecycle concrete: Bob IDE supports the
+human-led planning and implementation loop; Git stores the agent, tool, knowledge,
+portal, API, and tests; local automation validates the exact candidate; Bob Shell
+can add advisory findings; and a human retains the release decision.
+
+The `v0.1.0` scope remains deliberately bounded. It is a reproducible educational
+lab, not a production service, proof of a tenant deployment, or an autonomous
 release platform.
 
-> AI output is a candidate contribution. Tests produce evidence. A human owns the
-> release decision.
+> Deterministic checks produce evidence. A human owns the release decision.
 
 ![Mock-mode Acme portal with contextual assistant](docs/assets/acme-agentic-support.png)
 
 The screenshot shows fictional data in local **mock** mode.
 
-## What is validated
+## The case-study path
+
+1. A human defines the use case and non-negotiable safety boundaries.
+2. Bob IDE assists with plan-first engineering and a reviewable change.
+3. The assistant becomes versioned watsonx Orchestrate ADK source: agent, read-only
+   order tool, knowledge base, fixtures, and tests.
+4. Offline validation and the local mock profile run without IBM credentials.
+5. The reviewed package is prepared for a separately authorized Draft import.
+6. Deterministic CI runs contracts, tests, scans, builds, and browser journeys.
+7. A manual exact-SHA workflow can run a read-only Bob Shell advisory review after
+   all deterministic gates pass.
+8. A human reviews the evidence and decides whether to release.
+
+Read the complete [case study](docs/case-study.md), [workshop guide](docs/workshop.md),
+and [Bob Shell CI/CD control model](docs/bob-shell-cicd.md).
+
+## Evidence status
+
+| Claim | Current repository evidence |
+| --- | --- |
+| Local portal, API, assistant, and support flow | Implemented and deterministically testable |
+| watsonx Orchestrate ADK artifacts | Versioned and validated offline |
+| Import into watsonx Orchestrate Draft | Prepared and documented; authenticated import `not_asserted` |
+| Deployment to watsonx Orchestrate Live | Out of scope and `not_asserted` |
+| Bob IDE workflow | Plan-first workflow is documented; private session details are not part of the repository |
+| Bob Shell CI/CD controller | Implemented and locally contract-tested |
+| Authenticated Bob Shell review of this candidate | `not_completed` until the protected runner and credential are used |
+| Release approval | Human-owned; no automated approval |
+
+## What is validated locally
 
 - A Next.js portal and Fastify Support API run on loopback with synthetic Acme data.
 - A deterministic contextual assistant explains fictional order status and policy.
@@ -27,14 +65,17 @@ The screenshot shows fictional data in local **mock** mode.
 - An offline generator combines locked npm and Python components into CycloneDX 1.6.
 - A Full release audit binds redacted evidence to one exact Git commit and fails on
   any incomplete or failed hard gate.
+- The Bob Shell report parser, workspace policy, exact-SHA input boundary, workflow
+  contract, and mutation guard have repository-owned tests.
 
 ## What is not claimed
 
-The repository has source-level seams and guidance for watsonx Orchestrate Draft,
-Instana, and IBM Bob. The `v0.1.0` release claim does **not** include observed tenant
-execution, Instana trace receipt, Bob authorship, a Forgejo pipeline, replay mode,
-WXO Live promotion, deployment, or automatic approval. Those states remain
-`not_asserted` unless a separately authorized, candidate-bound run proves them.
+The repository has source-level seams and guidance for watsonx Orchestrate Draft
+and Instana, plus an optional manual Bob Shell workflow. The `v0.1.0` release claim
+does **not** include observed tenant execution, Instana trace receipt, an
+authenticated Bob Shell run, replay mode, WXO Live promotion, WXO tenant deployment,
+or automatic approval. Those states remain `not_asserted` or `not_completed` unless
+a separately authorized, candidate-bound run proves them.
 
 See [release scope](docs/release-scope.md) and [limitations](docs/limitations.md).
 
@@ -67,6 +108,19 @@ Stop both child services with `Ctrl+C` in the launching terminal. This profile
 forces `AGENT_MODE=stub`, disables telemetry, uses loopback endpoints, and does not
 load an `.env` file. Dependency installation can use configured public package
 indexes; the running demo makes no intended external business request.
+
+For a guided workshop flow that asks for ports and (only when explicitly selected)
+server-side WXO connection values, then asks the default browser to open the portal,
+API health endpoint, and repository previews, run:
+
+```text
+npm run guided
+```
+
+The terminal menu stays open until the operator chooses `0`. It never imports,
+deploys, promotes to WXO Live, runs Bob Shell locally, or writes the entered key.
+See the [guided launcher guide](docs/guided-launcher.md) for the complete flow and
+security boundary.
 
 For only the web/API subset, Node and npm are sufficient:
 
@@ -138,21 +192,25 @@ gates.
 | --- | --- | --- |
 | Mock | Implemented and locally testable | Deterministic portal, API, assistant, policy, and fictional fixtures |
 | Replay | Not implemented | No capture/playback runtime or UI is shipped |
-| Live | Source adapters only; tenant execution `not_asserted` | Bring-your-own-account WXO Draft and optional OTLP/Instana configuration |
+| Live | Source adapters only; tenant execution `not_asserted` | Bring-your-own-account WXO adapter (environment type is not inferred) and optional OTLP/Instana configuration |
 
-Credentials for optional modes must remain server-side and outside Git. Draft is
-not Live, and `source=orchestrate` proves adapter routing only; it does not prove an
-internal tool call or knowledge retrieval. Start with the
+Credentials for optional modes must remain server-side and outside Git. A response
+with `source=orchestrate` proves adapter routing only; it does not establish Draft
+or Live status, an internal tool call, or knowledge retrieval. Start with the
 [IBM integration guide](docs/ibm-integrations.md) and [live-mode boundary](docs/live-mode.md).
 
 ## Architecture and decision flow
 
 ```mermaid
 flowchart LR
-  Human[Human requirement and scope] --> Change[Reviewable code candidate]
+  Human[Human requirement and scope] --> BobIDE[Bob IDE plan and implementation]
+  BobIDE --> ADK[Versioned ADK agent, tool, and knowledge]
+  ADK --> Change[Reviewable exact-SHA candidate]
   Change --> Gates[Lint, contracts, tests, builds, scans]
   Gates --> Browser[Local real-browser acceptance]
+  Browser --> BobShell[Optional read-only Bob Shell review]
   Browser --> Evidence[Redacted evidence bound to exact SHA]
+  BobShell --> Evidence
   Evidence --> Decision{Human release decision}
   Decision -->|GO after external gates| Release[Tag and publish]
   Decision -->|NO-GO| Fix[Fix or reduce scope]
@@ -160,7 +218,7 @@ flowchart LR
 
   Portal[Next.js portal] --> Provider{Assistant provider}
   Provider --> Stub[Deterministic mock]
-  Provider -. optional / not asserted .-> WXO[WXO Draft adapter]
+  Provider -. optional / not asserted .-> WXO[WXO instance adapter]
   Portal --> API[Fastify Support API]
   API -. optional / not asserted .-> OTel[OTLP / Instana]
 ```
@@ -175,14 +233,17 @@ external release action.
 - `agents/store_support_agent` — optional Draft agent source package;
 - `contracts` — OpenAPI and normalized release-evidence schemas;
 - `tests/e2e` — local development and production-build browser journeys;
-- `scripts` — bounded launch, scan, SBOM, cleanup, and audit entrypoints;
+- `scripts` — bounded launch, scan, SBOM, cleanup, release-audit, and Bob review
+  controller entrypoints;
 - `examples` — fictional prompts and explicitly synthetic evidence samples;
 - `docs` — architecture, security, operating modes, lifecycle, and limits.
 
-Useful starting points are the [architecture](docs/architecture.md),
+Useful starting points are the [case study](docs/case-study.md),
+[workshop](docs/workshop.md), [architecture](docs/architecture.md),
 [runtime flow](docs/runtime-flow.md), [data flow](docs/data-flow.md),
 [security model](docs/security-model.md), [threat model](docs/threat-model.md),
-[local demo](docs/demo.md), [lifecycle reference](docs/lifecycle-commands.md), and
+[local demo](docs/demo.md), [guided launcher](docs/guided-launcher.md),
+[lifecycle reference](docs/lifecycle-commands.md), and
 [troubleshooting guide](docs/troubleshooting.md).
 
 ## Cleanup boundaries
@@ -196,15 +257,11 @@ tracked targets, and enforce path containment. They preserve source, Git history
 global runtimes, package-manager caches, and the shared Playwright browser cache.
 Stop running services first.
 
-## Security, privacy, and AI usage
+## Security and privacy
 
 Use fictional data only. Never commit credentials, tenant exports, browser auth
 state, production customer content, or private observability payloads. Report a
 vulnerability through the process in [SECURITY.md](SECURITY.md).
-
-AI coding tools may assist with bounded engineering work, but they do not own scope,
-claims, approval, or external actions. The disclosure and attribution rules are in
-[AI_USAGE.md](AI_USAGE.md).
 
 ## Community, licensing, and trademarks
 

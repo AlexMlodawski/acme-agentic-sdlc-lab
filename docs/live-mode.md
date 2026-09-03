@@ -15,7 +15,7 @@ or production readiness.
 | WXO Draft agent package | Yes | No; `not_asserted` |
 | WXO read-only order tool | Yes | No tenant invocation claim |
 | Instana OTLP/HTTP exporter path | Yes | No tenant receipt or trace-search claim |
-| IBM Bob choreography | Documentation only | No execution or authorship claim |
+| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Plan-first workflow is documented; authenticated Shell execution `not_completed` |
 | Forgejo workflow | No | Out of scope |
 | Replay profile | No | Out of scope |
 | WXO Live promotion | No | Prohibited by scope |
@@ -23,12 +23,18 @@ or production readiness.
 ## Local/mock versus account-backed execution
 
 The root `npm run dev` command deliberately forces `AGENT_MODE=stub` and strips
-application credentials from the child environments. This is the supported local
-launcher behavior and must not be weakened to make account-backed use convenient.
+application credentials from the child environments. This is the supported default
+local launcher behavior and must not be weakened to make account-backed use
+convenient. `npm run guided` is a separate, explicit foreground flow: it can inject
+the validated WXO values into the portal server child after the operator selects
+the account-backed profile and confirms a final action. It does not infer Draft or
+Live status and still does not import, deploy, or promote a tenant resource.
 
 The presence of `AGENT_MODE=orchestrate`, `WXO_API_ENDPOINT`, `WXO_AGENT_ID`, and
 `WXO_API_KEY` in source-level configuration defines an adapter boundary only. The
-repository does not currently provide a combined root lifecycle for that profile.
+guided launcher provides a bounded developer lifecycle for that profile; it does
+not turn an observed response into a Draft import, tool/retrieval proof, Live
+deployment, or release approval.
 
 ## Human authorization boundary
 
@@ -58,7 +64,6 @@ A future account-backed run should separate these claims:
 | Knowledge retrieval | Retrieval-specific evidence tied to the same run; policy wording alone is insufficient |
 | Instana export | Sanitized exporter diagnostic for the candidate process |
 | Instana receipt | Read-only trace result from the intended tenant tied by bounded correlation metadata |
-| IBM Bob authorship | Exact commit created in the observed Bob-assisted session and subsequently reviewed |
 | Human approval | Named approval record for the exact candidate after all required checks |
 
 Evidence must omit keys, tokens, auth headers, private URLs, cookies, tenant exports,

@@ -5,7 +5,7 @@ Nothing in this guide authorizes production or watsonx Orchestrate Live changes.
 These are reviewed source-level integration seams, not a one-command hosted
 deployment profile.
 
-## IBM Bob
+## IBM Bob and Bob IDE
 
 Use your own licensed installation. A useful development choreography is:
 
@@ -13,10 +13,30 @@ Use your own licensed installation. A useful development choreography is:
 2. ask it to inspect and produce a plan without modifying files;
 3. review the plan and explicitly approve implementation;
 4. require focused tests and a reviewable commit;
-5. attribute only that exact commit to the Bob-assisted change.
+5. record the exact candidate SHA and review results.
 
 This repository does not redistribute Bob binaries, auth state, or private
 configuration.
+
+See the complete [case-study path](case-study.md).
+
+## Bob Shell advisory review
+
+The manual `.github/workflows/bob-shell-review.yml` flow runs deterministic gates on
+a fresh GitHub-hosted worker, then uses GitHub's service-controlled successful
+dependency to start a separate protected ephemeral runner. That fresh review job
+creates the fixed same-run pass record locally; no gate artifact is transferred.
+Bob receives the complete tracked exact-SHA source and that record for a read-only
+review, not a diff, PR scope, logs, or test summaries. The Bob recommendation is
+advisory and cannot override tests or human approval.
+
+The controller is implemented, but no authenticated report for the current
+candidate is asserted. Before enabling it, read [Bob Shell in CI/CD](bob-shell-cicd.md),
+configure the protected environment and runner, install the reviewed Bob Shell
+version separately, and store `BOB_API_KEY` only as a protected Environment secret.
+When a general API key requires a team identifier, store `BOB_TEAM_ID` as a second
+protected Environment secret. Neither value is a manual workflow-dispatch input;
+both are exposed only to the Bob execution step.
 
 ## watsonx Orchestrate Draft
 
@@ -35,6 +55,12 @@ WXO_API_KEY=<from-protected-secret-storage>
 
 Never use `NEXT_PUBLIC_` for any credential. Never commit the values. Do not
 silently fall back to the local provider after an integrated failure.
+
+For an interactive foreground demonstration, `npm run guided` asks for these
+values with a masked key prompt, starts the portal/API only after the final human
+selection, and keeps the values in memory for that session. It is an account-backed
+chat adapter preview and does not infer Draft/Live status, import an agent, or
+perform a deployment or promotion action.
 
 Official starting points:
 

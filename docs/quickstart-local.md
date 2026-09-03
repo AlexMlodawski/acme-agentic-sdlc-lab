@@ -38,3 +38,20 @@ npm run e2e:built
 
 The default run makes no external business request. Package installation is the
 only step that normally requires Internet access.
+
+## Guided workshop launch
+
+To collect the ports/profile interactively, choose the final action, request every
+repository preview from the default browser, and keep a terminal menu open for the
+whole session, run:
+
+```text
+npm run guided
+```
+
+The default choice remains the local mock profile. The optional account-backed WXO
+choice asks for an endpoint, agent ID, and masked API key, keeps the values
+server-side for that foreground session, and does not infer Draft/Live status or
+import, deploy, or promote anything.
+See [`guided-launcher.md`](guided-launcher.md) for the prompts, menu, preview list,
+and troubleshooting steps.

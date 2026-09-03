@@ -1,12 +1,14 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using this metadata."
-title: "Acme Agentic SDLC Lab"
+title: "From idea to controlled release with IBM Bob"
 type: software
 authors:
-  - name: "Acme Agentic SDLC Lab contributors"
+  - name: "AlexMlodawski"
+    website: "https://github.com/AlexMlodawski"
 version: 0.1.0
 repository-code: "https://github.com/AlexMlodawski/acme-agentic-sdlc-lab"
 license: Apache-2.0
 abstract: >-
-  An evidence-first, human-governed learning lab for validating an
-  AI-assisted customer-support feature with deterministic local behavior.
+  An independent, evidence-first case study of a fictional AI support assistant
+  using watsonx Orchestrate ADK artifacts, IBM Bob IDE planning, deterministic CI,
+  and an optional Bob Shell advisory review.

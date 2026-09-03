@@ -2,7 +2,7 @@
 
 ## Story
 
-The message is: **AI-generated code is not yet a release decision.**
+The message is: **A passing test or review recommendation is not yet a release decision.**
 
 1. Show the portal and search for `ACME-1042`.
 2. Open the contextual assistant and ask for status plus return guidance.

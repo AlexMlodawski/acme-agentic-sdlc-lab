@@ -37,6 +37,16 @@ working tree, archive, machine, or external-service session.
   were observed in the release repository.
 - [ ] Optional WXO, Instana, Forgejo, and IBM Bob claims remain `not_asserted` unless
   candidate-bound evidence from an explicitly authorized session is attached.
+- [ ] If Bob Shell execution is claimed, the manual workflow ran for this exact SHA,
+  its deterministic and credentialed jobs were separate, GitHub's successful
+  `needs` result preceded local creation of `gates.json` in the fresh advisory job,
+  no gate artifact was transferred, and the validated `evidence-complete.json`, JSON
+  report, and human disposition are attached without overwriting earlier evidence.
+- [ ] `BOB_API_KEY` and any required `BOB_TEAM_ID` were protected `bob-review`
+  Environment secrets, were exposed only to the Bob step, and were not collected as
+  manual workflow-dispatch inputs or retained in evidence.
+- [ ] If IBM Bob IDE use is described, the wording distinguishes the maintainer's
+  reported process from independently published commit-level provenance.
 - [ ] No credentials, tenant exports, private URLs, customer data, or unrelated
   binaries are present in source, history, archive, SBOM, logs, or attachments.
 
