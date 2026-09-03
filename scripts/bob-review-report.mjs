@@ -17,7 +17,8 @@ const RECOMMENDATIONS = new Set([
   "not_ready",
 ]);
 
-export const EXPECTED_BOB_VERSION = "2.0.1";
+export const EXPECTED_BOB_VERSION = "2.0.2";
+export const EXPECTED_BOB_COMMIT = "a31a75e3";
 export const READ_ONLY_DISABLED_TOOL_GROUPS = Object.freeze([
   "edit",
   "execute",

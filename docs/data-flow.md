@@ -30,7 +30,7 @@ sequenceDiagram
   participant Portal
   participant Provider
   participant API as Support API
-  participant WXO as Optional WXO Draft
+  participant WXO as Optional WXO instance
 
   Customer->>Browser: Ask about current order
   Browser->>Portal: POST /api/agent with message, orderId, optional threadId

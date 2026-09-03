@@ -17,6 +17,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   assertPublicSafeBobReview,
   buildBobReviewReport,
+  EXPECTED_BOB_COMMIT,
   EXPECTED_BOB_VERSION,
   parseBobJsonResult,
   READ_ONLY_DISABLED_TOOL_GROUPS,
@@ -245,16 +246,22 @@ function buildPrompt(basePrompt, { candidateSha, controllerSha, deterministicGat
   ].join("\n");
 }
 
+export function parseBobVersionOutput(stdout, stderr = "") {
+  const normalizedStdout = String(stdout ?? "").replace(/\r\n?/gu, "\n").trim();
+  const normalizedStderr = String(stderr ?? "").trim();
+  const expected = `${EXPECTED_BOB_VERSION}\ncommit: ${EXPECTED_BOB_COMMIT}`;
+  if (normalizedStderr !== "" || normalizedStdout !== expected) {
+    throw new Error(`Bob Shell version must be exactly ${EXPECTED_BOB_VERSION} (${EXPECTED_BOB_COMMIT}).`);
+  }
+  return Object.freeze({ version: EXPECTED_BOB_VERSION, commit: EXPECTED_BOB_COMMIT });
+}
+
 function verifyBobVersion(environment) {
   const result = run("bob", ["--version"], { cwd: projectRoot, env: environment, timeout: 30_000 });
   if (result.status !== 0) {
     throw new Error(`Bob Shell ${EXPECTED_BOB_VERSION} is unavailable on this runner.`);
   }
-  const combined = `${result.stdout}\n${result.stderr}`;
-  const matches = combined.match(/\b\d+\.\d+\.\d+\b/gu) ?? [];
-  if (!matches.includes(EXPECTED_BOB_VERSION)) {
-    throw new Error(`Bob Shell version must be exactly ${EXPECTED_BOB_VERSION}.`);
-  }
+  parseBobVersionOutput(result.stdout, result.stderr);
 }
 
 function runBob(workspace, prompt, options, environment) {

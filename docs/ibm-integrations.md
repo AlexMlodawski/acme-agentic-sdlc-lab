@@ -56,6 +56,12 @@ WXO_API_KEY=<from-protected-secret-storage>
 Never use `NEXT_PUBLIC_` for any credential. Never commit the values. Do not
 silently fall back to the local provider after an integrated failure.
 
+For an interactive foreground demonstration, `npm run guided` asks for these
+values with a masked key prompt, starts the portal/API only after the final human
+selection, and keeps the values in memory for that session. It is an account-backed
+chat adapter preview and does not infer Draft/Live status, import an agent, or
+perform a deployment or promotion action.
+
 Official starting points:
 
 - <https://developer.watson-orchestrate.ibm.com/agents/build_agent>

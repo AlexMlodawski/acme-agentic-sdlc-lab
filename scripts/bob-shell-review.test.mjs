@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   assertBobWorkflowExecutionContext,
   isolatedExecutionEnvironment,
+  parseBobVersionOutput,
   parseBobReviewArguments,
 } from "./bob-shell-review.mjs";
 
@@ -57,6 +58,29 @@ test("publishable evidence requires the protected Linux workflow context", () =>
     /only by the checked-in/u);
   assert.throws(() => assertBobWorkflowExecutionContext({ ...context, GITHUB_RUN_ID: "local" }, "linux"),
     /only by the checked-in/u);
+});
+
+test("Bob version evidence requires the exact stable build", () => {
+  assert.deepEqual(parseBobVersionOutput("2.0.2\ncommit: a31a75e3\n"), {
+    version: "2.0.2",
+    commit: "a31a75e3",
+  });
+  assert.throws(
+    () => parseBobVersionOutput("2.0.2-rc.1\ncommit: a31a75e3\n"),
+    /exactly 2\.0\.2/u,
+  );
+  assert.throws(
+    () => parseBobVersionOutput("9.9.9 using 2.0.2\ncommit: a31a75e3\n"),
+    /exactly 2\.0\.2/u,
+  );
+  assert.throws(
+    () => parseBobVersionOutput("2.0.2\ncommit: deadbeef\n"),
+    /a31a75e3/u,
+  );
+  assert.throws(
+    () => parseBobVersionOutput("2.0.2\ncommit: a31a75e3\n", "warning"),
+    /exactly 2\.0\.2/u,
+  );
 });
 
 test("isolated candidate environment does not inherit service or CI secrets", () => {

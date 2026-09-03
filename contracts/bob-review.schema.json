@@ -40,7 +40,7 @@
         "reviewer": { "const": "Bob Shell" },
         "reviewedAt": { "type": "string", "format": "date-time" },
         "status": { "const": "pass" },
-        "bobVersion": { "const": "2.0.1" },
+        "bobVersion": { "const": "2.0.2" },
         "sourceMutationGuard": { "const": "pass" },
         "workspacePolicyGuard": { "const": "pass" },
         "maxCost": { "type": "number", "exclusiveMinimum": 0, "maximum": 5 },

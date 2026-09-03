@@ -10,9 +10,10 @@ path uses loopback only:
 - assistant: in-process deterministic `stub` provider;
 - telemetry: disabled.
 
-The local launcher does not load `.env` files and does not forward application
-credentials to its child services. Installation commands remain separate and may
-contact package publishers.
+The default local launcher does not load `.env` files and does not forward
+application credentials to its child services. The separate `npm run guided` flow
+can pass a masked, interactively supplied WXO API key only to the portal server
+child. Installation commands remain separate and may contact package publishers.
 
 ## Service inventory
 
@@ -24,7 +25,7 @@ contact package publishers.
 | Python vulnerability service | `npm run audit:python` | Query by locked package names/versions | Normally none | Release check; no project payload or credential is intended |
 | GitHub | Clone/fetch and hosted CI | Repository hosting and automation | User or runner-owned | Visibility, settings, and workflow execution are external state |
 | watsonx Orchestrate MCSP IAM | Only with complete WXO configuration | Server-side API-key token exchange | `WXO_API_KEY` | Source-level adapter; execution `not_asserted` |
-| watsonx Orchestrate agent endpoint | Only with `AGENT_MODE=orchestrate` and complete configuration | Server-side chat request | Short-lived bearer token | Draft tenant execution `not_asserted` |
+| watsonx Orchestrate agent endpoint | Only with `AGENT_MODE=orchestrate` and complete configuration (for example, `npm run guided`) | Server-side chat request | Short-lived bearer token | Tenant execution `not_asserted`; the launcher does not infer Draft or Live status |
 | Operator Support API endpoint | Optional external Draft tool configuration | Read-only `GET /orders/{orderId}` | Optional bearer token | Source-level tool; external execution `not_asserted` |
 | Generic OTLP collector | Only with telemetry enabled | Application trace export | Configuration-dependent | Local adapter behavior only |
 | IBM Instana blue SaaS OTLP/HTTP | Only with complete Instana configuration | Application trace export | Server-side Instana key and logical host | Tenant receipt/correlation `not_asserted` |

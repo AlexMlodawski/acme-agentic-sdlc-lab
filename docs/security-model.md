@@ -27,6 +27,9 @@ assertion about repository-host settings and external tenants.
 - It passes an allowlisted process environment and explicitly disables API auth and
   telemetry only for the credential-free local profile.
 - It forces the deterministic stub provider.
+- The guided launcher keeps the same loopback/API boundary, validates ports and
+  WXO identifiers, masks key input, filters child output, and terminates its
+  launcher-owned process tree when the session ends.
 
 ### Server-side credential boundaries
 

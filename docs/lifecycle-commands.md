@@ -18,6 +18,7 @@ intended to remain on loopback after those prerequisites are present.
 | `npm run install:project` | Install locked npm and Python project dependencies | `node_modules`, agent `.venv`, package caches | May contact configured public package indexes |
 | `npm run dev` | Start local API and portal development processes | Framework caches may be created | No external business call is intended |
 | `npm run up` | Alias for the foreground, local/mock `dev` launcher | Framework caches may be created | No external business call is intended |
+| `npm run guided` | Interactive foreground launcher for mock or explicitly selected account-backed WXO, with browser previews | Framework caches may be created | Mock stays local; WXO may contact the supplied endpoint only after the operator uses the assistant; Draft/Live status is not inferred |
 | `Ctrl+C` | Stop both launcher-owned child processes | None intended | None |
 | `npm run preflight` | Check toolchain, current tree, and complete reachable history | No intentional write | None |
 | `npm run lint` | Run workspace lint commands | Tool caches may be created | None intended after install |
@@ -118,10 +119,10 @@ overwritten.
 
 There is intentionally no repository command for:
 
-- a detached/background `up` or process-discovery `down`; the safe public launcher
-  remains foreground-owned and stops with `Ctrl+C`;
+- a detached/background `up` or process-discovery `down`; both public launchers
+  remain foreground-owned and stop from their launching terminal;
 - replay-mode startup;
-- WXO/Instana live acceptance;
+- WXO/Instana Live acceptance;
 - release signing, tagging, publication, deployment, tenant import, or promotion;
 - removal of global runtimes, package caches, or the shared Playwright browser cache.
 

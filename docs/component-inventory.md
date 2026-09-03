@@ -4,7 +4,7 @@
 
 | Component | Location | Entrypoint | Responsibility | State in v0.1.0 |
 | --- | --- | --- | --- | --- |
-| Root orchestrator | `package.json`, `scripts/dev-local.mjs` | `npm run dev` | Starts the local portal and API with an allowlisted environment | In scope |
+| Root orchestrators | `package.json`, `scripts/dev-local.mjs`, `scripts/guided-launcher.mjs` | `npm run dev`, `npm run guided` | Starts the local portal/API with an allowlisted environment; guided flow can explicitly select account-backed WXO and request browser previews | In scope |
 | Customer portal | `apps/portal` | `src/app/page.tsx` | Renders order lookup, assistant, return guidance, and support-case form | In scope |
 | Portal health route | `apps/portal/src/app/api/health/route.ts` | `GET /api/health` | Returns a small readiness response for the portal process | In scope |
 | Portal order boundary | `apps/portal/src/app/api/orders/[orderId]/route.ts` | `GET /api/orders/{orderId}` | Validates input and proxies order lookup to the Support API | In scope |

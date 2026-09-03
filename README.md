@@ -1,6 +1,8 @@
 # From idea to controlled release with IBM Bob
 
 Prepared and maintained by [AlexMlodawski](https://github.com/AlexMlodawski).
+Some code and documentation were drafted or refined with AI assistance; the
+maintainer reviewed, edited, and tested the result. See [AI_USAGE.md](AI_USAGE.md).
 
 An independent, end-to-end case study of building an AI support assistant as
 versioned **IBM watsonx Orchestrate Agent Development Kit (ADK)** artifacts with
@@ -107,6 +109,19 @@ forces `AGENT_MODE=stub`, disables telemetry, uses loopback endpoints, and does 
 load an `.env` file. Dependency installation can use configured public package
 indexes; the running demo makes no intended external business request.
 
+For a guided workshop flow that asks for ports and (only when explicitly selected)
+server-side WXO connection values, then asks the default browser to open the portal,
+API health endpoint, and repository previews, run:
+
+```text
+npm run guided
+```
+
+The terminal menu stays open until the operator chooses `0`. It never imports,
+deploys, promotes to WXO Live, runs Bob Shell locally, or writes the entered key.
+See the [guided launcher guide](docs/guided-launcher.md) for the complete flow and
+security boundary.
+
 For only the web/API subset, Node and npm are sufficient:
 
 ```text
@@ -177,11 +192,11 @@ gates.
 | --- | --- | --- |
 | Mock | Implemented and locally testable | Deterministic portal, API, assistant, policy, and fictional fixtures |
 | Replay | Not implemented | No capture/playback runtime or UI is shipped |
-| Live | Source adapters only; tenant execution `not_asserted` | Bring-your-own-account WXO Draft and optional OTLP/Instana configuration |
+| Live | Source adapters only; tenant execution `not_asserted` | Bring-your-own-account WXO adapter (environment type is not inferred) and optional OTLP/Instana configuration |
 
-Credentials for optional modes must remain server-side and outside Git. Draft is
-not Live, and `source=orchestrate` proves adapter routing only; it does not prove an
-internal tool call or knowledge retrieval. Start with the
+Credentials for optional modes must remain server-side and outside Git. A response
+with `source=orchestrate` proves adapter routing only; it does not establish Draft
+or Live status, an internal tool call, or knowledge retrieval. Start with the
 [IBM integration guide](docs/ibm-integrations.md) and [live-mode boundary](docs/live-mode.md).
 
 ## Architecture and decision flow
@@ -203,7 +218,7 @@ flowchart LR
 
   Portal[Next.js portal] --> Provider{Assistant provider}
   Provider --> Stub[Deterministic mock]
-  Provider -. optional / not asserted .-> WXO[WXO Draft adapter]
+  Provider -. optional / not asserted .-> WXO[WXO instance adapter]
   Portal --> API[Fastify Support API]
   API -. optional / not asserted .-> OTel[OTLP / Instana]
 ```
@@ -227,7 +242,8 @@ Useful starting points are the [case study](docs/case-study.md),
 [workshop](docs/workshop.md), [architecture](docs/architecture.md),
 [runtime flow](docs/runtime-flow.md), [data flow](docs/data-flow.md),
 [security model](docs/security-model.md), [threat model](docs/threat-model.md),
-[local demo](docs/demo.md), [lifecycle reference](docs/lifecycle-commands.md), and
+[local demo](docs/demo.md), [guided launcher](docs/guided-launcher.md),
+[lifecycle reference](docs/lifecycle-commands.md), and
 [troubleshooting guide](docs/troubleshooting.md).
 
 ## Cleanup boundaries
@@ -246,8 +262,6 @@ Stop running services first.
 Use fictional data only. Never commit credentials, tenant exports, browser auth
 state, production customer content, or private observability payloads. Report a
 vulnerability through the process in [SECURITY.md](SECURITY.md).
-
-For the AI disclosure, see [AI_USAGE.md](AI_USAGE.md).
 
 ## Community, licensing, and trademarks
 

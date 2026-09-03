@@ -23,12 +23,18 @@ or production readiness.
 ## Local/mock versus account-backed execution
 
 The root `npm run dev` command deliberately forces `AGENT_MODE=stub` and strips
-application credentials from the child environments. This is the supported local
-launcher behavior and must not be weakened to make account-backed use convenient.
+application credentials from the child environments. This is the supported default
+local launcher behavior and must not be weakened to make account-backed use
+convenient. `npm run guided` is a separate, explicit foreground flow: it can inject
+the validated WXO values into the portal server child after the operator selects
+the account-backed profile and confirms a final action. It does not infer Draft or
+Live status and still does not import, deploy, or promote a tenant resource.
 
 The presence of `AGENT_MODE=orchestrate`, `WXO_API_ENDPOINT`, `WXO_AGENT_ID`, and
 `WXO_API_KEY` in source-level configuration defines an adapter boundary only. The
-repository does not currently provide a combined root lifecycle for that profile.
+guided launcher provides a bounded developer lifecycle for that profile; it does
+not turn an observed response into a Draft import, tool/retrieval proof, Live
+deployment, or release approval.
 
 ## Human authorization boundary
 

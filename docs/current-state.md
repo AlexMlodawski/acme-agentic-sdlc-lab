@@ -49,7 +49,7 @@ workflow runs, tags, and releases are host state and cannot be proven by source 
 | Profile | Implementation state | Release-claim state |
 | --- | --- | --- |
 | Local/mock | Loopback launcher forces `AGENT_MODE=stub` and disables telemetry | In scope |
-| WXO Draft | Source package and server adapter | Prepared for separately authorized import and validation; execution `not_asserted` |
+| WXO Draft | Source package plus an account-backed server adapter and guided foreground launcher | Prepared for separately authorized Draft chat/import validation; the launcher does not infer environment status and tenant execution is `not_asserted` |
 | Instana | Restricted source adapter | Receipt/correlation `not_asserted` |
 | Bob Shell review | Manual two-job workflow and controller | Optional; authenticated run `not_completed` |
 | Replay | No runtime profile or UI | Out of scope |

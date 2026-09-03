@@ -20,9 +20,9 @@
   inspect the exact host and candidate before making a publication claim.
 - The release audit verifies and normalizes evidence but deliberately does not sign,
   tag, publish, deploy, import, promote, or make the human release decision.
-- There is no detached/background production lifecycle; the combined local launcher
-  is foreground-owned, and production profiles exist only inside the bounded browser
-  harness.
+- There is no detached/background production lifecycle; the local and guided
+  launchers are foreground-owned, and production profiles exist only inside the
+  bounded browser harness.
 - Reset and uninstall cover a fixed project-local allowlist. They do not remove global
   runtimes, package caches, or the shared Playwright browser cache.
 - Generated SBOM/evidence output is ignored locally and may be attached by the
@@ -62,7 +62,10 @@
 - Local validation does not establish that WXO accepted an agent definition.
 - `source=orchestrate` establishes adapter routing only, not internal tool invocation
   or knowledge retrieval.
-- The repository does not automate WXO import, deployment, or Live promotion.
+- The repository does not automate WXO import, deployment, or Live promotion. The
+  guided launcher can send a server-side account-backed chat request only after an
+  operator supplies the configuration interactively; it does not infer whether the
+  selected agent is Draft or Live.
 - Local OTLP tests do not establish Instana tenant receipt, indexing, retention, or
   trace-search behavior.
 - Instana access for investigation is expected to remain read-only.

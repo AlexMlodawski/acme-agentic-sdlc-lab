@@ -79,7 +79,7 @@ or runner isolation in addition to Bob configuration. See
 ## Requirements before the first run
 
 - A licensed IBM Bob account with an entitlement that permits Bob Shell use.
-- Bob Shell `2.0.1` installed on the dedicated runner; the controller fails closed
+- Bob Shell `2.0.2` installed on the dedicated runner; the controller fails closed
   for another observed version until its safety contract is reviewed and updated.
 - The IBM license reviewed and accepted before non-interactive execution.
 - An appropriate Bob API key held as the protected Environment secret
@@ -107,6 +107,120 @@ or runner isolation in addition to Bob configuration. See
 Installation and API-key behavior are documented by IBM in
 [Installing and setting up Bob Shell](https://bob.ibm.com/docs/shell/getting-started/install-and-setup)
 and [IBM Bob API keys](https://bob.ibm.com/docs/ide/account/api-keys).
+
+## One-time setup, step by step
+
+The local workshop and the protected CI review are separate paths. Installing Bob
+Shell on a maintainer's workstation is useful for checking the CLI version and
+reading the license, but it does not turn that workstation into the publishable
+review runner.
+
+### 1. Check the base toolchain
+
+From the repository root, install the locked project dependencies and browser,
+then require a passing doctor result:
+
+```text
+npm run install:project
+npx --no-install playwright install chromium
+npm run doctor
+```
+
+The declared versions are Node.js `24.19.0`, npm `11.17.0`, Python `3.12.10`, and
+`uv` `0.12.0`. Docker Desktop is not required for the local demo or either workflow
+job.
+
+### 2. Install the pinned Bob Shell version
+
+On a Windows maintainer workstation, download and inspect IBM's installer before
+running it:
+
+```powershell
+$installer = Join-Path $env:TEMP "bobshell-installer.ps1"
+Invoke-WebRequest -UseBasicParsing -Uri "https://bob.ibm.com/download/bobshell.ps1" -OutFile $installer
+Get-FileHash -Algorithm SHA256 -LiteralPath $installer
+Get-Content -LiteralPath $installer
+& $installer -PackageManager npm -Version 2.0.2
+bob --version
+```
+
+The final command must report `2.0.2` and build commit `a31a75e3`. The controller
+requires that exact two-line identity. Do not authenticate from this repository or
+store a Bob credential in a local `.env` file.
+
+On the dedicated Linux runner, use the equivalent pinned install after reviewing
+the downloaded script:
+
+```bash
+curl -fsSLo /tmp/bobshell.sh https://bob.ibm.com/download/bobshell.sh
+less /tmp/bobshell.sh
+bash /tmp/bobshell.sh --package-manager npm --version 2.0.2
+bob --version
+rm /tmp/bobshell.sh
+```
+
+Review the installed IBM and non-IBM license files before accepting the license.
+The workflow checkbox and `--accept-license` flag are confirmations of a completed
+human review; automation must not select them on a person's behalf.
+
+### 3. Register a disposable Linux runner
+
+In **Repository Settings → Actions → Runners**, choose **New self-hosted runner**
+and follow the fresh Linux commands shown by GitHub. Registration commands contain
+a short-lived token, so run them directly on the isolated host and never copy them
+into source, issues, chat, or logs. Add `--ephemeral` and
+`--labels bob-shell,ephemeral` to the displayed `config.sh` registration command;
+GitHub supplies the `self-hosted` and `linux` labels.
+
+The `ephemeral` label is routing metadata only. The `--ephemeral` registration flag
+is the control that makes GitHub automatically deregister the runner after one job.
+The host provisioner must also destroy the VM and its disk after the runner exits.
+If provisioning fails before a job is accepted, remove the registration with a
+fresh removal token before destroying the host. For an automated pool, use GitHub's
+just-in-time runner configuration instead of a persistent registration. Never reuse
+the workspace or Bob profile.
+
+GitHub documents the registration flow in
+[Adding self-hosted runners](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)
+and the label behavior in
+[Using self-hosted runners in a workflow](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/use-in-a-workflow).
+The single-job requirement is described in
+[Ephemeral runners for autoscaling](https://docs.github.com/en/actions/reference/runners/self-hosted-runners#ephemeral-runners-for-autoscaling).
+
+### 4. Create the protected Environment
+
+In **Repository Settings → Environments**, create `bob-review`, restrict it to the
+protected default branch, and add a required reviewer when the repository plan and
+visibility support that rule. Prevent self-review where available. GitHub withholds
+Environment secrets until configured protection rules pass; self-hosted runners
+still require independent operating-system isolation.
+
+On GitHub Free, configure this protected path only after the repository is public.
+Environment secrets and branch protection for a private repository require an
+eligible paid plan; do not weaken the workflow or move the key to an unprotected
+repository secret as a workaround.
+
+Add an unused, newly generated inference key as the Environment secret
+`BOB_API_KEY`. Use the GitHub UI or the following prompt-driven command so the
+value is not present in shell history:
+
+```text
+gh secret set BOB_API_KEY --env bob-review
+```
+
+If IBM issued a general key, add `BOB_TEAM_ID` the same way. Never reuse a key that
+has appeared in chat, terminal output, a file, or a workflow input; revoke it and
+create a replacement first. See GitHub's
+[environment management](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
+and [secure-use guidance](https://docs.github.com/en/actions/reference/security/secure-use).
+
+### 5. Make the controller reachable
+
+Review and merge the controller through the repository's protected process so
+`.github/workflows/bob-shell-review.yml` exists on the default branch. Separately
+commit the intended candidate, record its full lowercase 40-character SHA, and
+ensure that SHA is reachable in the same GitHub repository. A dirty or staged-only
+working tree is not a candidate and cannot be reviewed by this workflow.
 
 ## Manual, operator-controlled rehearsal
 
@@ -187,7 +301,7 @@ deliberately excludes `.git` metadata.
 The checked-in parser retains only a strict, public-safe report containing:
 
 - the candidate and trusted-controller SHAs;
-- one `reviewedAt` timestamp and Bob Shell version `2.0.1`;
+- one `reviewedAt` timestamp and Bob Shell version `2.0.2`;
 - the source-mutation and workspace-policy guard results;
 - approved cost and turn caps plus the disabled-tool boundary;
 - the same-run gate identity and fixed list of passing commands;
