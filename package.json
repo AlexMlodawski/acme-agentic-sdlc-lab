@@ -62,7 +62,7 @@
     "verify": "npm run verify:web && npm run verify:agent"
   },
   "devDependencies": {
-    "@redocly/cli": "2.47.0",
+    "@redocly/cli": "2.49.0",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1"
   },
