@@ -115,11 +115,11 @@ test("Quick and Full plans contain the required hard gates", () => {
 });
 
 test("redaction removes credentials, private keys, and absolute user path prefixes", () => {
-  const windowsHome = ["C:\\", "Users\\alexm"].join("");
+  const windowsHome = ["C:\\", "Users\\fixture-user"].join("");
   const escapedWindowsHome = windowsHome.replaceAll("\\", "\\\\");
-  const linuxHome = ["/home", "/alexm"].join("");
-  const macHome = ["/Users", "/alexm"].join("");
-  const wslHome = ["/mnt", "/c", "/Users", "/alexm"].join("");
+  const linuxHome = ["/home", "/fixture-user"].join("");
+  const macHome = ["/Users", "/fixture-user"].join("");
+  const wslHome = ["/mnt", "/c", "/Users", "/fixture-user"].join("");
   const uncPath = ["\\\\", "fixture-host", "\\private-share", "\\report.log"].join("");
   const escapedUncPath = uncPath.replaceAll("\\", "\\\\");
   const escapedWslPath = `${wslHome}/project/report.log`.replaceAll("/", "\\/");
@@ -159,7 +159,7 @@ test("redaction removes credentials, private keys, and absolute user path prefix
   ].join("\n");
   const output = redactText(input, windowsHome);
   for (const forbidden of [
-    "alexm",
+    "fixture-user",
     "fixture-host",
     "private-share",
     "super-secret-value",
