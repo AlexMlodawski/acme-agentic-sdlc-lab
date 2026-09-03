@@ -30,14 +30,16 @@ If either child exits unexpectedly, the launcher asks the other child to stop.
 `npm run guided` is a separate operator-facing flow. It validates the two loopback
 ports, asks for either the local `stub` profile or explicitly selected account-backed WXO
 configuration, shows a summary without credentials, and asks what to open/start.
-The mock selection delegates to the safe root launcher above. The WXO selection
-starts the same two workspace processes directly with `AGENT_MODE=orchestrate` and
-server-only WXO values. The Support API remains loopback-only, authentication and
-telemetry remain disabled, and no `.env` file is accepted.
+The mock selection delegates to the safe root launcher above only when optional
+Instana telemetry is disabled. WXO or Instana selection starts the same two
+workspace processes directly so each credential reaches only its intended child:
+server-only WXO values go to the portal and the optional Instana Agent Key goes to
+the Support API. The Support API remains loopback-only, its local authentication is
+disabled, and no `.env` file is accepted.
 
-After readiness checks, the guided launcher can open the portal, API health, the
-case-study/workshop documents, the Bob Shell control guide, and the fictional
-screenshot as browser previews. A terminal menu stays active until the operator
+After readiness checks, the guided launcher can open the portal, API health,
+case-study/workshop documents, the staged Bob/WXO prompts, the Bob Shell control
+guide, and the fictional screenshot as browser previews. A terminal menu stays active until the operator
 chooses `0` or cancels. The flow performs no WXO import, deployment, Live
 promotion, Bob Shell run, or release action.
 

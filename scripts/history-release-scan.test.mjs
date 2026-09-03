@@ -163,6 +163,43 @@ test("finds a synthetic secret retained only in an old commit without disclosing
   assertMachineOnlyOutput(result);
 });
 
+test("finds synthetic IBM Bob credentials retained only in history", async (t) => {
+  const directory = await createRepository(t);
+  const bobPrefix = ["bob", "prod", "bob-apikey"].join("_") + "_";
+  const rawSecret = bobPrefix + "D".repeat(64);
+  const assignedSecret = bobPrefix + "E".repeat(64);
+  const bobApiKeyName = ["BOB", "API", "KEY"].join("_");
+  assert.equal(containsHighConfidenceSecret(rawSecret), true);
+  assert.equal(
+    containsOpaqueProviderCredential(`${bobApiKeyName}=${assignedSecret}`),
+    true,
+  );
+  assert.equal(
+    containsOpaqueProviderCredential(`{ ${bobApiKeyName}: apiKey }`),
+    false,
+  );
+  await writeFile(path.join(directory, "raw-bob-credential.txt"), `${rawSecret}\n`);
+  await writeFile(
+    path.join(directory, "assigned-bob-credential.txt"),
+    `${bobApiKeyName}=${assignedSecret}\n`,
+  );
+  commitAll(directory, "add synthetic provider fixtures");
+  await rm(path.join(directory, "raw-bob-credential.txt"));
+  await rm(path.join(directory, "assigned-bob-credential.txt"));
+  await writeFile(path.join(directory, "README.md"), "Current tree is safe.\n");
+  commitAll(directory, "remove synthetic provider fixtures");
+
+  const result = scan(directory);
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /HISTORY_SECRET_BLOBS=2/u);
+  assert.match(result.stdout, /HISTORY_SECRET_SCAN=FAIL/u);
+  assert.match(result.stdout, /HISTORY_RELEASE_SCAN=FAIL/u);
+  for (const secret of [rawSecret, assignedSecret]) {
+    assert.doesNotMatch(result.stdout + result.stderr, new RegExp(secret, "u"));
+  }
+  assertMachineOnlyOutput(result);
+});
+
 test("rejects legacy graft state even when reachable content is otherwise safe", async (t) => {
   const directory = await createRepository(t);
   await writeFile(path.join(directory, "README.md"), "Synthetic safe baseline.\n");

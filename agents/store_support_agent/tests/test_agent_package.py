@@ -39,6 +39,13 @@ def test_materialized_agent_validates_with_pinned_adk() -> None:
     assert agent.restrictions.value == "editable"
     assert agent.tools == ["get_order_status"]
     assert agent.knowledge_base == ["acme_return_policy"]
+    assert agent.starter_prompts is not None
+    assert len(agent.starter_prompts.prompts) == 3
+    assert [prompt.id for prompt in agent.starter_prompts.prompts] == [
+        "acme-order-status",
+        "acme-return-window",
+        "acme-case-boundary",
+    ]
 
 
 def test_template_materializes_to_checked_in_agent() -> None:

@@ -109,6 +109,21 @@ describe("loadConfig", () => {
     });
   });
 
+  it.each(["bad\nkey", "key\n", "\tkey", "X".repeat(4_097)])(
+    "rejects an unsafe Instana Agent Key",
+    (agentKey) => {
+      expect(() =>
+        loadConfig({
+          OTEL_ENABLED: "1",
+          INSTANA_AGENT_KEY: String(agentKey),
+          INSTANA_OTLP_HTTP_ENDPOINT:
+            "https://otlp-http-blue-saas.instana.io:443",
+          INSTANA_OTLP_HOST: "acme-local-lab",
+        }),
+      ).toThrow("INSTANA_AGENT_KEY is required");
+    },
+  );
+
   it.each(["X".repeat(129), "contains spaces", "_missing-leading-alphanumeric"])(
     "rejects an unsafe demonstration correlation ID",
     (correlationId) => {

@@ -129,7 +129,26 @@ describe("AssistantPanel — happy path", () => {
     expect(assistantMsg).toHaveTextContent(REPLY_1.message);
     expect(assistantMsg.tagName).toBe("LI");
     expect(assistantMsg).toHaveAttribute("data-role", "assistant");
+    expect(screen.getByTestId("assistant-source")).toHaveTextContent(
+      "Source: watsonx Orchestrate",
+    );
     expect(assistantMsg.closest("ol")).toBe(screen.getByTestId("assistant-messages").querySelector("ol"));
+  });
+
+  it("labels a deterministic reply as local mock", async () => {
+    mocks.sendAssistantMessage.mockResolvedValue({
+      ...REPLY_1,
+      source: "stub",
+    });
+    const user = await renderWithOrder();
+
+    await user.click(screen.getByTestId("assistant-toggle"));
+    await user.type(screen.getByTestId("assistant-input"), "Status?");
+    await user.click(screen.getByTestId("assistant-send"));
+
+    expect(await screen.findByTestId("assistant-source")).toHaveTextContent(
+      "Source: Local mock",
+    );
   });
 
   it("reuses the thread ID for a follow-up turn", async () => {

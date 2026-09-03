@@ -113,6 +113,38 @@ test("rejects additional high-confidence provider credential formats", async (t)
   assert.doesNotMatch(result.stdout + result.stderr, new RegExp(syntheticSecret, "u"));
 });
 
+test("rejects synthetic IBM Bob credentials without disclosing them", async (t) => {
+  const directory = await createRepository(t);
+  const bobPrefix = ["bob", "prod", "bob-apikey"].join("_") + "_";
+  const rawSecret = bobPrefix + "D".repeat(64);
+  const assignedSecret = bobPrefix + "E".repeat(64);
+  const bobApiKeyName = ["BOB", "API", "KEY"].join("_");
+  const wxoApiKeyName = ["WXO", "API", "KEY"].join("_");
+  assert.equal(containsHighConfidenceSecret(rawSecret), true);
+  assert.equal(
+    containsOpaqueProviderCredential(`${bobApiKeyName}=${assignedSecret}`),
+    true,
+  );
+  assert.equal(
+    containsOpaqueProviderCredential(`{ ${bobApiKeyName}: apiKey }`),
+    false,
+  );
+  assert.equal(containsOpaqueProviderCredential(`{ ${wxoApiKeyName}: apiKey }`), true);
+  await writeFile(path.join(directory, "raw-bob-credential.txt"), `${rawSecret}\n`);
+  await writeFile(
+    path.join(directory, "assigned-bob-credential.txt"),
+    `${bobApiKeyName}=${assignedSecret}\n`,
+  );
+  await addAll(directory);
+
+  const result = scan(directory);
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /SECRET_SCAN=FAIL/u);
+  for (const secret of [rawSecret, assignedSecret]) {
+    assert.doesNotMatch(result.stdout + result.stderr, new RegExp(secret, "u"));
+  }
+});
+
 test("rejects a synthetic GitLab token and generated release evidence", async (t) => {
   const directory = await createRepository(t);
   const syntheticSecret = "glpat-" + "C".repeat(30);

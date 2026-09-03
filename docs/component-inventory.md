@@ -4,24 +4,25 @@
 
 | Component | Location | Entrypoint | Responsibility | State in v0.1.0 |
 | --- | --- | --- | --- | --- |
-| Root orchestrators | `package.json`, `scripts/dev-local.mjs`, `scripts/guided-launcher.mjs` | `npm run dev`, `npm run guided` | Starts the local portal/API with an allowlisted environment; guided flow can explicitly select account-backed WXO and request browser previews | In scope |
+| Root orchestrators | `package.json`, `scripts/dev-local.mjs`, `scripts/guided-launcher.mjs` | `npm run dev`, `npm run guided` | Starts the local portal/API with an allowlisted environment; guided flow can explicitly select account-backed WXO, optionally scope direct Instana OTLP export to the Support API, and request browser previews | In scope; default mock remains zero-secret and telemetry-off |
 | Customer portal | `apps/portal` | `src/app/page.tsx` | Renders order lookup, assistant, return guidance, and support-case form | In scope |
 | Portal health route | `apps/portal/src/app/api/health/route.ts` | `GET /api/health` | Returns a small readiness response for the portal process | In scope |
 | Portal order boundary | `apps/portal/src/app/api/orders/[orderId]/route.ts` | `GET /api/orders/{orderId}` | Validates input and proxies order lookup to the Support API | In scope |
 | Portal assistant boundary | `apps/portal/src/app/api/agent/route.ts` | `POST /api/agent` | Validates messages, adds current-order context, and selects an assistant provider | Local path in scope; WXO execution `not_asserted` |
 | Portal support-case boundary | `apps/portal/src/app/api/support-cases/route.ts` | `POST /api/support-cases` | Enforces same-origin JSON input and proxies a case request | In scope |
 | Local assistant provider | `apps/portal/src/lib/agent/StubAgentProvider.ts` | `sendMessage()` | Deterministic status lookup and fictional return-policy guidance | In scope as mock |
-| WXO provider adapter | `apps/portal/src/lib/agent/OrchestrateAgentProvider.ts` | `sendMessage()` | Calls the configured WXO agent after server-side token exchange | Source-level only |
+| WXO provider adapter | `apps/portal/src/lib/agent/OrchestrateAgentProvider.ts` | `sendMessage()` | Lets the existing portal call an operator-selected WXO agent after server-side token exchange | Source-level only; it does not create, import, or promote the agent |
 | MCSP token adapter | `apps/portal/src/lib/agent/McspV2TokenProvider.ts` | `getToken()` | Exchanges a WXO API key for a bounded, cached access token | Source-level only |
 | Support API | `services/support-api` | `src/server.ts` | Serves health, readiness, fictional orders, and support-case acknowledgements | In scope |
 | Order fixtures | `services/support-api/src/orders.ts` | `findOrder()` | Holds three immutable fictional order records | In scope |
 | Support-case service | `services/support-api/src/support-cases.ts` | `create()` | Returns a deterministic acknowledgement; it does not persist data | In scope with limitation |
-| Telemetry adapter | `services/support-api/src/telemetry.ts` | `initializeTelemetry()` | Optionally exports application HTTP spans through OTLP/HTTP | Source-level; external receipt `not_asserted` |
+| Telemetry adapter | `services/support-api/src/telemetry.ts` | `initializeTelemetry()` | Optionally exports Support API application HTTP spans directly through OTLP/HTTP | No system agent or collector is installed; external receipt `not_asserted` |
 | Runtime configuration | `services/support-api/src/config.ts` | `loadConfig()` | Validates bind, auth, CORS, OTLP, and Instana settings | In scope |
 | Public API contract | `contracts/support-api.yaml` | OpenAPI 3.0 document | Describes local and external API profiles | In scope |
-| Draft agent definition | `agents/store_support_agent/agents` | `store_support_agent.template.yaml` | Defines a reviewable native Draft agent | Source-level only |
+| Draft agent definition | `agents/store_support_agent/agents` | `store_support_agent.template.yaml` | Supplies the reviewable native-agent template and bounded starter prompts for the Bob IDE workshop stage | Source-level only |
 | Draft order tool | `agents/store_support_agent/tools/get_order_status.py` | `get_order_status()` | Performs a bounded read-only order lookup | Source-level; tenant invocation `not_asserted` |
 | Draft knowledge base | `agents/store_support_agent/knowledge_bases` | `acme_return_policy.yaml` | References the fictional return-policy document | Source-level; tenant retrieval `not_asserted` |
+| Agent materializer | `agents/store_support_agent/scripts/materialize_agent.py` | `materialize()` | Inserts an operator-confirmed model ID and validates a tenant-reviewable definition offline | Generated output is not Draft import evidence |
 
 ## Verification and repository components
 
@@ -42,7 +43,7 @@
 | Cleanup helper | `scripts/cleanup-local.mjs` | Resets allowlisted generated state or removes project-local dependency state | Requires explicit confirmation and preserves global/shared caches |
 | CI definitions | `.github/workflows` | Define verification, browser, CodeQL, dependency-review, and release-audit jobs with bounded permissions | Source presence does not prove a host-side workflow ran or a security feature is enabled |
 | Evidence examples | `examples/evidence` | Demonstrate the four-state evidence vocabulary | Always synthetic samples |
-| Bob prompt examples | `examples/prompts` | Demonstrate plan, approval, and strict machine-readable review choreography | IDE prompts remain human-operated; the Shell prompt is consumed only by the manual controller |
+| Bob prompt examples | `examples/prompts` | Demonstrate the human-gated Bob IDE build/import choreography and the later strict machine-readable review choreography | IDE prompts remain human-operated and Draft-only; the Shell prompt is consumed only by the manual controller |
 | Design assets | `design`, `docs/assets`, portal CSS | Provide owned visual presentation and tokens | Visual presence is not accessibility certification |
 | Governance documents | Root Markdown files and `docs` | Define contribution, security, evidence, and claim boundaries | Policy text requires enforcement and observed evidence |
 
@@ -61,6 +62,8 @@ are not source components.
 - Database or durable case store.
 - Replay recorder, fixture player, or replay UI.
 - Automated WXO tenant importer or Live promotion command.
+- Instana host-agent, system collector, or infrastructure-monitoring installer. The
+  optional guided path is direct, application-only OTLP export from the Support API.
 - An always-on or automatically triggered IBM Bob runner. The shipped Bob Shell
   workflow is manual and requires a separately administered ephemeral runner.
 - Automatic merge or human-approval enforcement service.

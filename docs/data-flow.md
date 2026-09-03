@@ -30,7 +30,7 @@ sequenceDiagram
   participant Portal
   participant Provider
   participant API as Support API
-  participant WXO as Optional WXO instance
+  participant WXO as Selected WXO Draft agent
 
   Customer->>Browser: Ask about current order
   Browser->>Portal: POST /api/agent with message, orderId, optional threadId
@@ -40,7 +40,7 @@ sequenceDiagram
     Provider->>API: Optional read-only order lookup
     API-->>Provider: Fictional order result
     Provider-->>Portal: Deterministic answer, source=stub
-  else Optional WXO adapter
+  else Explicit account-backed WXO adapter
     Portal->>Provider: Send envelope
     Provider->>WXO: Server-side chat request
     WXO-->>Provider: Bounded response and thread ID
@@ -49,8 +49,10 @@ sequenceDiagram
   Portal-->>Browser: Normalized response
 ```
 
-The WXO branch is source-level and `not_asserted` for v0.1.0. Even when routing is
-observed, tool invocation and knowledge retrieval require separate direct evidence.
+The WXO branch is the primary account-backed workshop path, while local/mock keeps
+the repository reproducible without credentials. Source alone leaves external
+routing `not_asserted`; even when routing is observed, tool invocation and knowledge
+retrieval require separate direct evidence.
 
 ## Support-case acknowledgement
 

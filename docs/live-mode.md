@@ -15,7 +15,7 @@ or production readiness.
 | WXO Draft agent package | Yes | No; `not_asserted` |
 | WXO read-only order tool | Yes | No tenant invocation claim |
 | Instana OTLP/HTTP exporter path | Yes | No tenant receipt or trace-search claim |
-| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Plan-first workflow is documented; authenticated Shell execution `not_completed` |
+| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Plan-first workflow is documented; authenticated Shell status is evidence-bound per exact candidate |
 | Forgejo workflow | No | Out of scope |
 | Replay profile | No | Out of scope |
 | WXO Live promotion | No | Prohibited by scope |
@@ -48,8 +48,8 @@ an optional integration must separately:
 5. constrain WXO work to Draft;
 6. treat Instana investigation as read-only;
 7. avoid production data and use only fictional Acme test records;
-8. stop before deployment, Live promotion, merge, or release unless each operation
-   receives its own explicit authorization.
+8. stop before deployment or Live promotion without exception in this Draft-only
+   runbook; merge and release remain separate, explicitly authorized operations.
 
 ## Evidence required for a future integrated claim
 

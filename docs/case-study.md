@@ -5,15 +5,18 @@
 This independent educational case study shows a reviewable path from a bounded
 customer-support requirement to release evidence:
 
-1. a human defines the outcome and non-negotiable guardrails;
-2. IBM Bob can assist planning and implementation in the IDE;
-3. the watsonx Orchestrate agent, tool, and knowledge definitions are stored as
-   versioned source;
-4. local checks validate those artifacts without contacting a tenant;
-5. a maintainer may separately import a reviewed package into a watsonx
-   Orchestrate Draft environment;
+1. a human defines the outcome, Draft-only target, and non-negotiable guardrails;
+2. IBM Bob IDE starts from the supplied backend, read-only tool, knowledge base,
+   native-agent template, fixtures, and validation scripts;
+3. Bob helps materialize and validate the model-specific definition and, only after
+   separate human authorization, import the reviewed agent into watsonx Orchestrate
+   Draft;
+4. the existing portal is pointed at that selected WXO agent through its server-side
+   adapter;
+5. an optional guided path can send Support API traces directly to Instana over
+   OTLP/HTTP without installing a system agent or collector;
 6. deterministic CI produces the release-gate result;
-7. Bob Shell may add a non-interactive, advisory review;
+7. Bob Shell may later add a non-interactive, bounded advisory review; and
 8. a human makes the release decision for one exact candidate.
 
 The example product is a fictional Acme support portal. Its assistant can look up
@@ -28,9 +31,11 @@ a case autonomously.
 | Portal, Support API, and local assistant | Implemented and covered by deterministic local tests |
 | watsonx Orchestrate ADK assets | Versioned, materialized, and validated offline |
 | Draft import | Prepared and documented; authenticated tenant import is `not_asserted` |
+| Portal-to-WXO connection | Server-side adapter and guided configuration exist; authenticated tenant routing is `not_asserted` |
 | Live deployment | Out of scope and `not_asserted` |
+| Instana direct OTLP | Opt-in guided path and local wire behavior exist; tenant receipt, indexing, and search are `not_asserted` |
 | Deterministic CI | Implemented in GitHub Actions without an IBM account |
-| Bob Shell review in CI/CD | Manual exact-SHA controller and contract tests implemented; authenticated execution is `not_completed` |
+| Bob Shell review in CI/CD | Manual exact-SHA controller and contract tests implemented; authenticated status is established per candidate by its validated workflow artifact |
 | Final release decision | Reserved for a human maintainer |
 
 “Prepared for Draft import” is deliberately narrower than “deployed.” The current
@@ -42,15 +47,20 @@ interacted with it.
 
 ```mermaid
 flowchart LR
-  Requirement[Human requirement and guardrails] --> Bob[IBM Bob plan and implementation]
-  Bob --> Source[Versioned ADK agent, tool, and knowledge source]
-  Source --> Local[Offline materialization and validation]
-  Local -. separately authorized .-> Draft[watsonx Orchestrate Draft import and preview]
+  Requirement[Human requirement and Draft-only guardrails] --> Bob[IBM Bob IDE workshop stage]
+  Ready[Ready portal, API, tool, knowledge, and template] --> Bob
+  Bob --> Local[Model-specific materialization and offline validation]
+  Local -. separately authorized .-> Draft[watsonx Orchestrate Draft import]
+  Draft -. selected runtime configuration .-> Portal[Existing portal WXO adapter]
+  Portal --> API[Support API]
+  API -. opt-in direct OTLP .-> Instana[Instana blue SaaS]
   Local --> CI[Deterministic CI gates]
-  CI --> Shell[Optional advisory Bob Shell review]
+  CI --> Shell[Later bounded Bob Shell review]
   Shell --> Evidence[Sanitized evidence for one exact SHA]
   CI --> Evidence
-  Draft -. optional sanitized evidence .-> Evidence
+  Draft -. separate import evidence .-> Evidence
+  Portal -. separate routing evidence .-> Evidence
+  Instana -. separate tenant observation .-> Evidence
   Evidence --> Decision{Human GO or NO-GO}
   Decision -. separate authorization .-> Release[Tag or publish]
 ```
@@ -71,88 +81,93 @@ tool declares read-only permission, validates the order identifier and response
 schema, limits response size and timeout, follows no redirects, and returns safe
 failure categories.
 
-## Stage 2: use IBM Bob as a development assistant
+## Stage 2: build the Draft agent in IBM Bob IDE from ready components
 
-The intended IDE choreography is:
-
-1. provide the business requirement and repository instructions;
-2. use Plan mode to inspect and propose a design before implementation;
-3. have a human review the plan and authorize the bounded change;
-4. use Agent mode for implementation and focused tests;
-5. inspect the diff and findings before accepting the candidate.
-
-IBM documents Plan, Agent, and Ask modes for planning, implementation, and
-explanation respectively. IBM also documents an IDE Review workflow that analyzes
-branch differences and presents findings, while recommending automated review as a
-first pass before human review. See the official [IBM Bob overview](https://bob.ibm.com/docs/ide),
-[modes documentation](https://bob.ibm.com/docs/ide/features/modes), and
-[code-review documentation](https://bob.ibm.com/docs/ide/features/code-reviews).
-
-IBM also documents **Build with Bob**, which can initialize a watsonx Orchestrate
-workspace and help create, modify, validate, import, or deploy agent assets through
-natural-language instructions. The one-click launch integration is documented as a
-Preview feature for watsonx Orchestrate SaaS on AWS and IBM Cloud. This repository
-does not treat feature availability as evidence of a completed external run. See
-[Building agents with IBM Bob](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-building-bob).
-
-## Stage 3: keep agent assets reviewable in Git
-
-The package under `agents/store_support_agent` contains:
+The first hands-on build stage does not ask a participant to implement a backend
+from scratch. The package under `agents/store_support_agent` already contains:
 
 - `agents/store_support_agent.template.yaml` — the native-agent template with a
-  tenant-selected model placeholder;
-- `tools/get_order_status.py` — a read-only Python tool for the Support API;
+  tenant-selected model placeholder and bounded starter prompts;
+- `tools/get_order_status.py` — a read-only Python tool for the ready Support API;
 - `knowledge_bases/acme_return_policy.yaml` and `knowledge/return-policy.txt` —
   the fictional policy source;
-- offline cases and Python tests;
+- offline cases and Python tests; and
 - bounded scripts for local validation and materialization.
 
-This makes behavior, restrictions, tool contracts, and knowledge inputs reviewable
-alongside the application. No credential, tenant identifier, tenant export, or IBM
-binary is included.
+The intended Bob IDE choreography is:
 
-IBM describes the ADK as a developer-focused toolkit for building, testing, and
-managing agents with YAML or JSON definitions, Python tools, and a CLI. Official
-references cover [getting started with the ADK](https://developer.watson-orchestrate.ibm.com/getting_started/installing),
-[importing agents](https://developer.watson-orchestrate.ibm.com/agents/import_agent),
-and [importing Python or OpenAPI tools](https://developer.watson-orchestrate.ibm.com/tools/deploy_tool).
+1. open the repository and give Bob the bounded workshop requirement and repository
+   instructions;
+2. use Plan mode to inspect the supplied template, tool, knowledge, backend contract,
+   and validation scripts before changing or running anything;
+3. have a human approve the Draft-only plan and select a model confirmed as available
+   in the authorized environment;
+4. materialize the model-specific definition into the ignored `.generated` directory;
+5. run offline validation and inspect the generated definition and results; and
+6. only after a separate human authorization naming the active Draft target, use the
+   current Bob/ADK workflow to import that reviewed definition into Draft.
 
-## Stage 4: validate locally before any tenant write
-
-The repository first installs locked dependencies, validates the checked-in
-illustrative agent definition and its relationship to the template, exercises the
-real local HTTP boundary of the read-only tool, and runs the Python test suite:
+The repository-owned commands for the credential-free part are:
 
 ```text
 npm run install:project
 npm run verify:agent
-```
-
-These checks do not contact watsonx Orchestrate. A successful local result proves
-only that the checked-in package satisfies the repository's offline contracts.
-
-Before a possible import, the maintainer must choose a model that is available in
-the intended tenant and create a reviewed generated definition:
-
-```text
 uv run --project agents/store_support_agent python agents/store_support_agent/scripts/materialize_agent.py --model-id "<tenant-confirmed-model-id>" --output agents/store_support_agent/.generated/store_support_agent.yaml
 ```
 
-## Stage 5: prepare for a separately authorized Draft import
+Offline validation does not contact watsonx Orchestrate. Materialization proves only
+that the definition was produced and passed repository checks. Draft import is a
+separate tenant write and needs its own observed, sanitized evidence; it is never
+evidence of Live deployment, tool invocation, or knowledge retrieval.
 
-IBM documents that importing an agent transfers its configuration to the active
-environment in a Draft, undeployed state. Deployment is a separate operation that
-moves a Draft agent to Live. The two states must not be conflated. See
-[Importing and deploying agents](https://developer.watson-orchestrate.ibm.com/agents/import_agent)
-and [watsonx Orchestrate environments](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-environments).
+IBM documents Plan, Agent, and Ask modes for planning, implementation, and
+explanation respectively. IBM also documents **Build with Bob** for creating,
+validating, and importing agent assets. See the official
+[IBM Bob overview](https://bob.ibm.com/docs/ide),
+[modes documentation](https://bob.ibm.com/docs/ide/features/modes),
+[Building agents with IBM Bob](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-building-bob),
+and [ADK agent import guidance](https://developer.watson-orchestrate.ibm.com/agents/import_agent).
 
-This repository intentionally stops before the tenant write. An operator choosing
-to continue must confirm the account, tenant, workspace, active environment,
-connections, selected model, and authorization; review all generated assets; use
-fictional data; and retain sanitized evidence tied to the candidate SHA. Draft
-import must not be described as Live deployment.
+IBM documents that import places an agent in the active environment as Draft and
+that deployment to Live is a separate operation. Before import, the operator must
+confirm the account, workspace, active environment, connection, selected model, and
+authorization; review all generated assets; and use fictional data. This workshop
+stops at Draft.
 
-## Stage 6: make deterministic checks the CI authority
+## Stage 3: connect the existing portal to the selected Draft agent
+
+After an independently evidenced Draft import, the participant starts the existing
+portal and Support API rather than generating a second application. Run
+`npm run guided`, select the account-backed WXO profile, and enter the endpoint,
+agent ID, and API key only through the interactive runtime prompts. The key stays
+server-side and is not written to a repository file.
+
+The guided launcher sends chat requests to the selected agent. It does not import an
+agent, determine whether the remote resource is Draft or Live, configure its
+connection, deploy it, or promote it. A successful response marked
+`source=orchestrate` is evidence of adapter routing for that run only. Tool invocation
+and knowledge retrieval require separate direct evidence.
+
+The cloud agent cannot reach the launcher's loopback Support API. A tenant-side
+`acme_support_api` connection used for a real tool exercise therefore needs a
+separately reviewed, authenticated HTTPS endpoint; that hosting boundary is not
+provided by this repository.
+
+## Stage 4: optionally observe the Support API with direct Instana OTLP
+
+The same guided launcher can explicitly enable application-trace export from the
+Support API to the fixed Instana blue SaaS OTLP/HTTP endpoint. It asks for a
+synthetic logical host and an Instana Agent Key through a masked prompt, creates a
+unique safe correlation ID, and scopes the key to the Support API child process.
+This direct application export does not install a system Instana agent or an
+OpenTelemetry collector.
+
+This telemetry covers the Support API, not the WXO service or the agent's internal
+reasoning, tool use, or retrieval. An exporter diagnostic supports only an export
+attempt. Tenant receipt, indexing, and trace-search visibility need a separate
+read-only observation tied to the same sanitized correlation ID.
+
+## Stage 5: make deterministic checks the CI authority
 
 The checked-in CI workflow runs without IBM tenant credentials. It verifies the
 web application and ADK package, scans current and reachable Git content, audits
@@ -167,7 +182,7 @@ IBM's ADK CI/CD guidance likewise describes version-controlled agent definitions
 test and security gates, Draft testing, approval boundaries, and a separate Live
 promotion. See the official [watsonx Orchestrate CI/CD deployment approach](https://developer.watson-orchestrate.ibm.com/tutorials/ci_cd/deployment-cicd-approach-3).
 
-## Stage 7: add Bob Shell as an advisory outer-loop review
+## Stage 6: add Bob Shell as a later advisory outer-loop review
 
 IBM documents `bob run` for non-interactive automation and CI/CD, including JSON
 and streaming JSON output plus cost and turn limits. In this case study, its safe
@@ -177,13 +192,14 @@ findings for a human. It does not receive a selected diff, pull-request scope, t
 logs, or sanitized test summaries. It does not replace the tests, approve a pull
 request, deploy an agent, or decide whether to release.
 
-The repository includes the optional controller, but does not contain evidence of an
-authenticated Bob Shell run for this candidate. Its control model and rehearsal are documented in
-[Bob Shell in CI/CD](bob-shell-cicd.md). Official references include the
+The repository includes the optional controller but intentionally does not commit
+generated Bob reports. A review claim must instead be matched to the exact candidate
+SHA and validated artifact of the protected workflow run. The control model is
+documented in [Bob Shell in CI/CD](bob-shell-cicd.md). Official references include the
 [Bob Shell overview](https://bob.ibm.com/docs/shell) and
 [non-interactive sessions](https://bob.ibm.com/docs/shell/getting-started/start-bobshell-non-interactive).
 
-## Stage 8: retain human release ownership
+## Stage 7: retain human release ownership
 
 The release audit can produce a technical recommendation and a complete evidence
 bundle for one exact Git SHA. It cannot check legal ownership, approve public
@@ -192,9 +208,10 @@ with the maintainer and are recorded through the release checklist.
 
 This is the central engineering claim of the case study:
 
-> IBM Bob can assist development, watsonx Orchestrate ADK makes agent assets
-> versionable, deterministic automation produces test evidence, Bob Shell can add
-> an advisory review, and a human remains accountable for release.
+> IBM Bob IDE can turn reviewed, versioned building blocks into a Draft agent;
+> the existing portal can connect to that selected agent; deterministic automation
+> produces test evidence; Bob Shell can later add an advisory review; and a human
+> remains accountable for every tenant and release decision.
 
 ## Reproduction boundaries
 
@@ -203,9 +220,10 @@ deterministic CI commands, and browser tests from the public source without an I
 account. Reproducing the IBM-connected stages requires the reader's own licensed
 products, current entitlements, credentials, and explicit authorization.
 
-Do not publish Draft import, tool invocation, knowledge retrieval, or Live deployment
-claims unless a separate observed run provides candidate-bound evidence for that
-exact statement.
+Do not combine source validation, Draft import, portal routing, tool invocation,
+knowledge retrieval, Instana receipt, Bob Shell execution, or Live deployment into
+one broad success claim. Each statement requires its own observed, candidate-bound
+evidence; Live remains outside this workshop.
 
 ## Independence and trademarks
 

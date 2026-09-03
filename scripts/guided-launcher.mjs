@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import { lstat, readFile } from "node:fs/promises";
 import process from "node:process";
@@ -17,8 +18,13 @@ export const DEFAULT_PORTS = Object.freeze({
 
 export const WXO_HOST_PATTERN =
   /^api\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.dl\.watson-orchestrate\.ibm\.com$/u;
+export const INSTANA_BLUE_OTLP_HTTP_ENDPOINT =
+  "https://otlp-http-blue-saas.instana.io:443";
 
 const AGENT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
+const INSTANA_LOGICAL_HOST_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u;
+const GUIDED_CORRELATION_ID_PATTERN =
+  /^ACME-GUIDED-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 const PORT_PATTERN = /^\d{1,5}$/u;
 const WXO_INSTANCE_PATTERN = /^\/instances\/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
 
@@ -33,6 +39,11 @@ const DOCUMENT_PREVIEWS = Object.freeze([
   { id: "quickstart", label: "Local quickstart", relativePath: "docs/quickstart-local.md" },
   { id: "case-study", label: "Case study", relativePath: "docs/case-study.md" },
   { id: "workshop", label: "Workshop", relativePath: "docs/workshop.md" },
+  { id: "bob-plan", label: "Bob IDE plan prompt", relativePath: "examples/prompts/01-bob-plan-only.md" },
+  { id: "bob-build", label: "Bob IDE local build prompt", relativePath: "examples/prompts/02-go.md" },
+  { id: "wxo-import", label: "WXO Draft import prompt", relativePath: "examples/prompts/02a-wxo-draft-import.md" },
+  { id: "portal-connect", label: "WXO portal connection prompt", relativePath: "examples/prompts/02b-wxo-portal-connect.md" },
+  { id: "release-review", label: "Release review prompt", relativePath: "examples/prompts/03-release-review.md" },
   { id: "bob-shell", label: "Bob Shell CI/CD controls", relativePath: "docs/bob-shell-cicd.md" },
   { id: "screenshot", label: "Portal screenshot", relativePath: "docs/assets/acme-agentic-support.png" },
 ]);
@@ -121,12 +132,42 @@ export function validateAgentId(value) {
   return { ok: true, value: candidate };
 }
 
+export function validateInstanaLogicalHost(value) {
+  const candidate = asTrimmedString(value);
+  if (!INSTANA_LOGICAL_HOST_PATTERN.test(candidate)) {
+    return {
+      ok: false,
+      error: "Instana logical host must start with a letter or number and contain only letters, numbers, ., _, or -.",
+    };
+  }
+  return { ok: true, value: candidate };
+}
+
+export function validateInstanaAgentKey(value) {
+  const raw = typeof value === "string" ? value : String(value ?? "");
+  const candidate = asTrimmedString(value);
+  if (candidate === "" || raw.length > 4_096 || /[\u0000-\u001f\u007f]/u.test(raw)) {
+    return {
+      ok: false,
+      error: "Instana Agent Key is required and must be a bounded single-line value.",
+    };
+  }
+  return { ok: true, value: candidate };
+}
+
+export function createGuidedCorrelationId() {
+  return `ACME-GUIDED-${randomUUID()}`;
+}
+
 export function maskSecret(value) {
   return asTrimmedString(value) === "" ? "[not provided]" : "[provided; hidden]";
 }
 
-export function profileLabel(profile) {
-  return profile === "orchestrate" ? "WXO account-backed (server-side adapter)" : "Local mock (zero-secret)";
+export function profileLabel(profile, instana = {}) {
+  if (profile === "orchestrate") return "WXO account-backed (server-side adapter)";
+  return instana.enabled === true
+    ? "Local mock (Instana telemetry enabled)"
+    : "Local mock (zero-secret)";
 }
 
 export function buildRuntimeEnvironments({
@@ -134,12 +175,34 @@ export function buildRuntimeEnvironments({
   portalPort,
   apiPort,
   wxo = {},
+  instana = {},
   inherited = {},
 } = {}) {
   const ports = validatePortPair(portalPort, apiPort);
   if (!ports.ok) throw new Error(ports.error);
   if (profile !== "stub" && profile !== "orchestrate") {
     throw new Error("Guided profile must be stub or orchestrate.");
+  }
+
+  const instanaEnabled = instana.enabled === true;
+  const hasDisabledInstanaValues = [instana.agentKey, instana.logicalHost, instana.correlationId]
+    .some((value) => asTrimmedString(value) !== "");
+  if (!instanaEnabled && hasDisabledInstanaValues) {
+    throw new Error("Instana values cannot be supplied while Instana is disabled.");
+  }
+  let instanaRuntime = {};
+  let correlationId = "ACME-LAB-GUIDED";
+  if (instanaEnabled) {
+    const key = validateInstanaAgentKey(instana.agentKey);
+    if (!key.ok) throw new Error(key.error);
+    const host = validateInstanaLogicalHost(instana.logicalHost);
+    if (!host.ok) throw new Error(host.error);
+    const requestedCorrelationId = asTrimmedString(instana.correlationId);
+    if (!GUIDED_CORRELATION_ID_PATTERN.test(requestedCorrelationId)) {
+      throw new Error("Instana guided correlation ID is invalid.");
+    }
+    instanaRuntime = { agentKey: key.value, logicalHost: host.value };
+    correlationId = requestedCorrelationId;
   }
 
   const common = {
@@ -150,7 +213,7 @@ export function buildRuntimeEnvironments({
     ),
     NODE_ENV: "development",
     NEXT_TELEMETRY_DISABLED: "1",
-    DEMO_CORRELATION_ID: "ACME-LAB-GUIDED",
+    DEMO_CORRELATION_ID: correlationId,
   };
   const api = {
     ...common,
@@ -158,7 +221,16 @@ export function buildRuntimeEnvironments({
     SUPPORT_API_PORT: ports.value.api,
     SUPPORT_API_REQUIRE_AUTH: "0",
     SUPPORT_API_TOKEN: "",
-    OTEL_ENABLED: "0",
+    OTEL_ENABLED: instanaEnabled ? "1" : "0",
+    ...(instanaEnabled
+      ? {
+          INSTANA_AGENT_KEY: instanaRuntime.agentKey,
+          INSTANA_OTLP_HTTP_ENDPOINT: INSTANA_BLUE_OTLP_HTTP_ENDPOINT,
+          INSTANA_OTLP_HOST: instanaRuntime.logicalHost,
+          OTEL_SERVICE_NAME: "acme-support-api",
+          DEPLOYMENT_ENVIRONMENT: "guided-lab",
+        }
+      : {}),
   };
   const portal = {
     ...common,
@@ -166,6 +238,7 @@ export function buildRuntimeEnvironments({
     SUPPORT_API_BASE_URL: `http://127.0.0.1:${ports.value.api}`,
     SUPPORT_API_TOKEN: "",
     AGENT_MODE: profile,
+    NEXT_PUBLIC_DEMO_CORRELATION_ID: correlationId,
   };
 
   if (profile === "orchestrate") {
@@ -239,12 +312,11 @@ export function selectPreviews(manifest, selection = "all") {
   return manifest.filter((item) => requested.includes(item.id));
 }
 
-export function summarizeSession({ profile, portalPort, apiPort, wxo = {} }) {
+export function summarizeSession({ profile, portalPort, apiPort, wxo = {}, instana = {} }) {
   const lines = [
-    `Profile: ${profileLabel(profile)}`,
+    `Profile: ${profileLabel(profile, instana)}`,
     `Portal: http://127.0.0.1:${portalPort}`,
     `Support API: http://127.0.0.1:${apiPort}`,
-    "Telemetry: disabled by this launcher",
     "Secrets: kept in memory only; never written to a file or sent to the browser",
   ];
   if (profile === "orchestrate") {
@@ -260,6 +332,16 @@ export function summarizeSession({ profile, portalPort, apiPort, wxo = {} }) {
     lines.push("WXO environment: operator-selected; Draft or Live is not inferred by this launcher");
     lines.push("WXO boundary: chat request only; no import, deployment, or promotion");
   }
+  if (instana.enabled === true) {
+    lines.push("Telemetry: Instana blue SaaS OTLP/HTTP enabled for Support API traces");
+    lines.push(`Instana endpoint: ${INSTANA_BLUE_OTLP_HTTP_ENDPOINT}`);
+    lines.push(`Instana logical host: ${asTrimmedString(instana.logicalHost) || "[not provided]"}`);
+    lines.push(`Instana Agent Key: ${maskSecret(instana.agentKey)}`);
+    lines.push(`Correlation ID: ${asTrimmedString(instana.correlationId) || "[not provided]"}`);
+    lines.push("Instana evidence boundary: exporter diagnostics do not prove tenant indexing or search visibility");
+  } else {
+    lines.push("Telemetry: disabled by this launcher");
+  }
   return lines;
 }
 
@@ -271,7 +353,12 @@ export function redactRuntimeOutput(text, secrets = []) {
   }
   return result
     .replace(/(WXO_API_KEY\s*[=:]\s*)[^\s]+/giu, "$1[REDACTED]")
-    .replace(/(INSTANA_AGENT_KEY\s*[=:]\s*)[^\s]+/giu, "$1[REDACTED]");
+    .replace(/(INSTANA_AGENT_KEY\s*[=:]\s*)[^\s]+/giu, "$1[REDACTED]")
+    .replace(/(x-instana-key\s*[=:]\s*)[^\s,;]+/giu, "$1[REDACTED]");
+}
+
+export function usesSplitServiceProcesses(profile, instana = {}) {
+  return profile === "orchestrate" || instana.enabled === true;
 }
 
 function inheritedEnvironment() {
@@ -451,7 +538,12 @@ export class GuidedServiceGroup {
       this.stopping = true;
       this.stopPromise = stopChildren(this.children);
     }
-    await this.stopPromise;
+    try {
+      await this.stopPromise;
+    } finally {
+      this.secrets.fill("");
+      this.secrets.length = 0;
+    }
   }
 }
 
@@ -460,6 +552,7 @@ export function startServices({
   portalPort,
   apiPort,
   wxo = {},
+  instana = {},
   root = projectRoot,
 } = {}) {
   assertSecretFreeLocalEnvironment(root);
@@ -468,12 +561,16 @@ export function startServices({
     portalPort,
     apiPort,
     wxo,
+    instana,
     inherited: inheritedEnvironment(),
   });
-  const secrets = profile === "orchestrate" ? [wxo.apiKey] : [];
+  const secrets = [
+    ...(profile === "orchestrate" ? [wxo.apiKey] : []),
+    ...(instana.enabled === true ? [instana.agentKey] : []),
+  ];
   const children = [];
 
-  if (profile === "stub") {
+  if (!usesSplitServiceProcesses(profile, instana)) {
     const child = spawnNpm(["run", "dev"], {
       cwd: root,
       env: {
@@ -866,7 +963,7 @@ function printPreviewSummary(manifest, selection) {
 }
 
 async function startAndWait(config) {
-  console.log(`\nUruchamiam ${profileLabel(config.profile)}...`);
+  console.log(`\nUruchamiam ${profileLabel(config.profile, config.instana)}...`);
   try {
     await assertLoopbackPortsAvailable([config.portalPort, config.apiPort]);
   } catch (error) {
@@ -1018,7 +1115,7 @@ async function runGuidedLauncher() {
     }
 
     const profile = await askChoice(prompter, "Wybierz profil asystenta", [
-      ["stub", "Local mock — deterministyczny, zero-secret"],
+      ["stub", "Local mock — deterministyczny; bez poświadczeń asystenta"],
       ["orchestrate", "WXO account-backed — połączenie server-side; środowisko weryfikuje operator"],
     ]);
     const wxo = {};
@@ -1032,7 +1129,35 @@ async function runGuidedLauncher() {
       }
     }
 
-    config = { profile, portalPort, apiPort, wxo };
+    const instana = { enabled: false };
+    const telemetry = await askChoice(prompter, "Włączyć eksport śladów Support API do Instana blue SaaS?", [
+      ["disabled", "Nie — telemetria wyłączona"],
+      ["instana", "Tak — aplikacyjne ślady OTLP do stałego endpointu Blue SaaS"],
+    ]);
+    if (telemetry === "instana") {
+      instana.enabled = true;
+      console.log(`  Endpoint ingest: ${INSTANA_BLUE_OTLP_HTTP_ENDPOINT}`);
+      console.log("  Włączenie zacznie wysyłać wyłącznie aplikacyjne ślady Support API.");
+      instana.logicalHost = await askValidated(
+        prompter,
+        "Syntetyczny logiczny host Instana",
+        validateInstanaLogicalHost,
+        "acme-guided-lab",
+      );
+      while (true) {
+        const candidate = await prompter.secret("Podaj Instana Agent Key — nie API token (wpis jest ukryty): ");
+        const validated = validateInstanaAgentKey(candidate);
+        if (validated.ok) {
+          instana.agentKey = validated.value;
+          break;
+        }
+        console.log(`  ! ${validated.error}`);
+      }
+      instana.correlationId = createGuidedCorrelationId();
+      console.log(`  Correlation ID tej sesji: ${instana.correlationId}`);
+    }
+
+    config = { profile, portalPort, apiPort, wxo, instana };
     console.log("\nKonfiguracja sesji (bez sekretów):");
     console.log(summarizeSession(config).map((line) => `  ${line}`).join("\n"));
 
@@ -1078,6 +1203,7 @@ async function runGuidedLauncher() {
     activePreviewServer = null;
     prompter.close();
     if (config?.wxo) config.wxo.apiKey = "";
+    if (config?.instana) config.instana.agentKey = "";
   }
 }
 
