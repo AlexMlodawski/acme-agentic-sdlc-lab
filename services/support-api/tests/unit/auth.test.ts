@@ -23,4 +23,14 @@ describe("bearer authentication", () => {
       hasValidBearerToken("bearer demo-api-token", "demo-api-token"),
     ).toBe(true);
   });
+
+  it("rejects a different token with the same UTF-8 byte length", () => {
+    expect(
+      hasValidBearerToken("Bearer demo-api-tokem", "demo-api-token"),
+    ).toBe(false);
+  });
+
+  it("rejects tokens whose JavaScript length matches but UTF-8 byte length differs", () => {
+    expect(hasValidBearerToken("Bearer ż", "x")).toBe(false);
+  });
 });
