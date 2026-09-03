@@ -389,7 +389,12 @@ export async function runBobShellReview(options) {
       deterministicGates,
       trackedFiles,
     });
-    const { envelope, payload, apiKey } = runBob(reviewWorkspace, prompt, options, environment);
+    const {
+      envelope,
+      payload,
+      diagnosticEventCount,
+      apiKey,
+    } = runBob(reviewWorkspace, prompt, options, environment);
     const after = await snapshotBobReviewWorkspace(reviewWorkspace);
     if (before !== after) throw new Error("Bob Shell changed the isolated review workspace.");
     await assertSafeBobReviewWorkspace(reviewWorkspace, {
@@ -404,6 +409,7 @@ export async function runBobShellReview(options) {
       maxCost: options.maxCost,
       maxTurns: options.maxTurns,
       toolCalls: envelope.stats.tool_calls,
+      diagnosticEventCount,
       gateEvidence: {
         sourceJob: gateEvidence.sourceJob,
         workflowRunId: gateEvidence.workflowRunId,

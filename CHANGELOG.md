@@ -39,6 +39,9 @@ based on Keep a Changelog, and the project intends to use Semantic Versioning.
   signatures without retaining or printing matched values.
 - Documented ADK 2.15 Draft chat as a foreground TTY session with an explicit `q`
   exit so workshop automation cannot loop on non-interactive EOF.
+- Made Bob Shell 2.0.2 machine-output handling fail closed while accepting its
+  observed bounded diagnostic JSONL prefix; persisted evidence records only the
+  diagnostic count and never the diagnostic messages.
 
 ### Removed
 

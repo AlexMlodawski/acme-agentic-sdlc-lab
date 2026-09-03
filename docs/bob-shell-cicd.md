@@ -64,7 +64,7 @@ secure, accessible, legally publishable, or ready for production.
 | External-system mutation | Provide no tenant, deployment, package-registry, GitHub write, or observability credential; use a read-only checkout and job token |
 | Prompt injection from untrusted changes | Do not run privileged Bob review on unreviewed forks; inspect changes to Bob configuration and instruction files first |
 | Model output is mistaken for a test result | Keep all deterministic jobs authoritative and label Bob output `advisory` |
-| Raw output exposes private content or reasoning | Parse the terminal JSON in memory and retain only the schema-allowed sanitized report fields; do not retain or publish raw streams or unrestricted logs |
+| Raw output exposes private content or reasoning | Parse the terminal JSON or strictly bounded Bob 2.0.2 diagnostic JSONL in memory and retain only the schema-allowed sanitized report fields plus the diagnostic-event count; do not retain or publish raw streams, diagnostic messages, or unrestricted logs |
 | Unbounded consumption | Set approved `--max-cost` and `--max-turns` limits |
 | Authentication or service failure is hidden | Record the Bob step as `not_completed`; never convert it to `pass` |
 
@@ -303,7 +303,8 @@ The checked-in parser retains only a strict, public-safe report containing:
 - the candidate and trusted-controller SHAs;
 - one `reviewedAt` timestamp and Bob Shell version `2.0.2`;
 - the source-mutation and workspace-policy guard results;
-- approved cost and turn caps plus the disabled-tool boundary;
+- approved cost and turn caps, the disabled-tool boundary, and the count of
+  validated structured diagnostic events with their messages suppressed;
 - the same-run gate identity and fixed list of passing commands;
 - sanitized findings, explicit `notAsserted` items, and the advisory recommendation;
 - hashes binding the JSON and Markdown reports to the completion marker.
@@ -315,18 +316,32 @@ private tenant identifiers. Validate the sanitized report against a repository-o
 schema before attaching it as CI evidence. Evidence creation fails rather than
 automatically overwriting an existing Bob review output.
 
+Bob Shell 2.0.2 can place structured error diagnostics before its final result
+when JSON output is requested. The parser accepts at most 20 such events, requires
+their exact observed schema and UTC timestamp shape, and then requires exactly one
+successful final result. Every line must be a standalone JSON object. Prose,
+unknown fields, another event type or severity, too many diagnostics, a missing or
+non-final result, or an invalid model payload makes the execution `not_completed`.
+Only `diagnosticEventCount` is retained; diagnostic messages never enter the
+report or rendered Markdown. A nonzero count is transparent evidence of
+nonterminal Bob diagnostics, not a claim that those diagnostics were harmless.
+
 ### 6. Apply explicit failure semantics
 
 | Observation | Recorded state |
 | --- | --- |
 | Session completed and a sanitized report is bound to the exact SHA | Bob review completed; findings remain advisory |
+| Successful final result includes validated structured diagnostics | Preserve only their count; do not infer that the diagnostics were harmless |
 | Authentication, network, cost, turn, parser, or service failure | `not_completed` |
 | Candidate mismatch or unsafe/unsanitized input | `fail` for the review workflow |
 | No authorized Bob Shell run | Execution `not_completed`; claim “Bob Shell reviewed this candidate” `not_asserted` |
 | Bob recommends release while a deterministic gate failed | Deterministic failure remains the release blocker |
 
-Workflow success and the Bob recommendation must not be relabeled as an overall
-release `pass`.
+The persisted `review.status: pass` means that the final Bob result, safety guards,
+and report contract completed successfully. It does not mean that Bob emitted no
+diagnostics, that every attempted tool action succeeded, or that a human approved
+the release. Workflow success and the Bob recommendation must not be relabeled as
+an overall release `pass`.
 
 ### 7. Perform human review
 
