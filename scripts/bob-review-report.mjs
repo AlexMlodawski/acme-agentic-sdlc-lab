@@ -19,6 +19,7 @@ const RECOMMENDATIONS = new Set([
 
 export const EXPECTED_BOB_VERSION = "2.0.2";
 export const EXPECTED_BOB_COMMIT = "a31a75e3";
+export const MAX_BOB_DIAGNOSTIC_EVENTS = 20;
 export const READ_ONLY_DISABLED_TOOL_GROUPS = Object.freeze([
   "edit",
   "execute",
@@ -128,17 +129,56 @@ export function parseBobJsonResult(stdout) {
   if (!isUsefulText(stdout, 2_000_000)) {
     throw new Error("Bob Shell returned no bounded machine-readable output.");
   }
-  let envelope;
+  const normalized = stdout.trim();
+  let events;
   try {
-    envelope = JSON.parse(stdout);
+    events = [JSON.parse(normalized)];
   } catch {
-    throw new Error("Bob Shell --format json output must be one JSON object.");
+    const lines = normalized.split(/\r?\n/u);
+    if (lines.length < 2) {
+      throw new Error("Bob Shell --format json output must be one JSON object or bounded JSONL.");
+    }
+    if (lines.length > MAX_BOB_DIAGNOSTIC_EVENTS + 1) {
+      throw new Error(`Bob Shell output exceeds the ${MAX_BOB_DIAGNOSTIC_EVENTS}-diagnostic limit.`);
+    }
+    events = lines.map((line, index) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        throw new Error(`Bob Shell JSONL line ${index + 1} must be one JSON object without prose.`);
+      }
+    });
+  }
+  if (events.length > MAX_BOB_DIAGNOSTIC_EVENTS + 1) {
+    throw new Error(`Bob Shell output exceeds the ${MAX_BOB_DIAGNOSTIC_EVENTS}-diagnostic limit.`);
+  }
+
+  const envelope = events.at(-1);
+  const diagnostics = events.slice(0, -1);
+  for (const [index, diagnostic] of diagnostics.entries()) {
+    if (!hasExactKeys(diagnostic, ["type", "timestamp", "severity", "message"])) {
+      throw new Error(`Bob Shell diagnostic event ${index + 1} has missing or unsupported fields.`);
+    }
+    if (diagnostic.type !== "error" || diagnostic.severity !== "error") {
+      throw new Error(`Bob Shell diagnostic event ${index + 1} has unsupported type or severity.`);
+    }
+    if (!ISO_UTC_PATTERN.test(diagnostic.timestamp)
+      || Number.isNaN(Date.parse(diagnostic.timestamp))) {
+      throw new Error(`Bob Shell diagnostic event ${index + 1} has an invalid timestamp.`);
+    }
+    if (!isUsefulText(diagnostic.message)) {
+      throw new Error(`Bob Shell diagnostic event ${index + 1} has an invalid message.`);
+    }
   }
   if (!hasExactKeys(envelope, ["type", "timestamp", "status", "stats", "last_message"])) {
     throw new Error("Bob Shell result envelope has missing or unsupported fields.");
   }
   if (envelope.type !== "result" || envelope.status !== "success") {
     throw new Error("Bob Shell did not return one successful result envelope.");
+  }
+  if (!ISO_UTC_PATTERN.test(envelope.timestamp ?? "")
+    || Number.isNaN(Date.parse(envelope.timestamp))) {
+    throw new Error("Bob Shell result envelope has an invalid timestamp.");
   }
   if (!isRecord(envelope.stats) || !Number.isSafeInteger(envelope.stats.tool_calls)
     || envelope.stats.tool_calls < 1) {
@@ -153,7 +193,11 @@ export function parseBobJsonResult(stdout) {
   } catch {
     throw new Error("Bob Shell last_message must be one raw JSON object without prose or fences.");
   }
-  return { envelope, payload: validateBobPayload(payload) };
+  return {
+    envelope,
+    payload: validateBobPayload(payload),
+    diagnosticEventCount: diagnostics.length,
+  };
 }
 
 export function buildBobReviewReport({
@@ -163,6 +207,7 @@ export function buildBobReviewReport({
   maxCost,
   maxTurns,
   toolCalls,
+  diagnosticEventCount,
   gateEvidence,
   deterministicGates,
   payload,
@@ -182,6 +227,7 @@ export function buildBobReviewReport({
       maxCost,
       maxTurns,
       toolCalls,
+      diagnosticEventCount,
       disabledToolGroups: [...READ_ONLY_DISABLED_TOOL_GROUPS],
     },
     gateEvidence,
@@ -221,7 +267,8 @@ export function validateBobReviewReport(report) {
   }
   const reviewKeys = [
     "reviewer", "reviewedAt", "status", "bobVersion", "sourceMutationGuard",
-    "workspacePolicyGuard", "maxCost", "maxTurns", "toolCalls", "disabledToolGroups",
+    "workspacePolicyGuard", "maxCost", "maxTurns", "toolCalls", "diagnosticEventCount",
+    "disabledToolGroups",
   ];
   issue(issues, hasExactKeys(report.review, reviewKeys), "review has missing or unsupported fields.");
   if (isRecord(report.review)) {
@@ -239,6 +286,10 @@ export function validateBobReviewReport(report) {
       && report.review.maxTurns <= 30, "review.maxTurns must be an integer from 1 through 30.");
     issue(issues, Number.isSafeInteger(report.review.toolCalls) && report.review.toolCalls >= 1,
       "review.toolCalls must record at least one aggregate tool call.");
+    issue(issues, Number.isSafeInteger(report.review.diagnosticEventCount)
+      && report.review.diagnosticEventCount >= 0
+      && report.review.diagnosticEventCount <= MAX_BOB_DIAGNOSTIC_EVENTS,
+    `review.diagnosticEventCount must be an integer from 0 through ${MAX_BOB_DIAGNOSTIC_EVENTS}.`);
     issue(issues, Array.isArray(report.review.disabledToolGroups)
       && report.review.disabledToolGroups.join(",") === READ_ONLY_DISABLED_TOOL_GROUPS.join(","),
     "disabledToolGroups must match the reviewed read-only profile.");
@@ -334,6 +385,7 @@ export function renderBobReviewMarkdown(report) {
     `- Reviewed at: \`${report.review.reviewedAt}\``,
     `- Bob Shell version: \`${report.review.bobVersion}\``,
     `- Aggregate tool calls: \`${report.review.toolCalls}\``,
+    `- Structured diagnostic events (messages suppressed): \`${report.review.diagnosticEventCount}\``,
     `- Deterministic gate run: \`${report.gateEvidence.workflowRunId}\` attempt \`${report.gateEvidence.workflowRunAttempt}\``,
     `- Source mutation guard: \`${report.review.sourceMutationGuard}\``,
     `- Recommendation: \`${report.recommendation}\``,
