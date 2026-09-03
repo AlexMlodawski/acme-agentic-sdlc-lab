@@ -572,7 +572,9 @@ test("rejects root paths and exact Instana header assignments in image metadata"
 
 test("detects odd-aligned UTF-16 metadata independently in JPEG APP and COM segments", async (t) => {
   const directory = await createRepository(t);
-  const sensitiveMarker = ["x-instana", "-key", "=opaque-utf16-fixture"].join("");
+  const fixtureHeader = ["x", "instana", "key"].join("-");
+  const fixtureValue = ["opaque", "utf16", "fixture"].join("-");
+  const sensitiveMarker = [fixtureHeader, fixtureValue].join(String.fromCharCode(61));
   const littleEndian = Buffer.from(sensitiveMarker, "utf16le");
   const bigEndian = Buffer.alloc(littleEndian.length);
   for (let index = 0; index < littleEndian.length; index += 2) {
