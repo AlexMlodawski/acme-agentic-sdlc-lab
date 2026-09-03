@@ -13,15 +13,12 @@ Use your own licensed installation. A useful development choreography is:
 2. ask it to inspect and produce a plan without modifying files;
 3. review the plan and explicitly approve implementation;
 4. require focused tests and a reviewable commit;
-5. attribute only that exact commit to the Bob-assisted change.
+5. record the exact candidate SHA and review results.
 
 This repository does not redistribute Bob binaries, auth state, or private
 configuration.
 
-The maintainer reports using this plan-first pattern while preparing the case study.
-Private session transcripts are not publication artifacts, so the repository does
-not infer commit-level authorship from that statement alone. See [AI usage](../AI_USAGE.md)
-and the complete [case-study path](case-study.md).
+See the complete [case-study path](case-study.md).
 
 ## Bob Shell advisory review
 
@@ -30,7 +27,7 @@ a fresh GitHub-hosted worker, then uses GitHub's service-controlled successful
 dependency to start a separate protected ephemeral runner. That fresh review job
 creates the fixed same-run pass record locally; no gate artifact is transferred.
 Bob receives the complete tracked exact-SHA source and that record for a read-only
-review, not a diff, PR scope, logs, or test summaries. The AI recommendation is
+review, not a diff, PR scope, logs, or test summaries. The Bob recommendation is
 advisory and cannot override tests or human approval.
 
 The controller is implemented, but no authenticated report for the current

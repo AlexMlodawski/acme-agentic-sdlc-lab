@@ -1,11 +1,10 @@
-# AI usage and human accountability
+# AI disclosure and human accountability
 
 ## Disclosure
 
-AI coding assistants have been used to support preparation of this repository and
-its release documentation. AI assistance may include source inspection, drafting,
-implementation suggestions, test generation, documentation, and analysis of local
-verification output.
+Portions of the source code, tests, examples, and documentation in this repository
+were written, drafted, or refined with AI assistance. The maintainer reviewed,
+edited, and tested the material and remains responsible for the final contents.
 
 The maintainer describes this project as a case study developed with IBM Bob in a
 plan-first, human-reviewed workflow. The repository publishes the resulting source,

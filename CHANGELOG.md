@@ -12,7 +12,7 @@ based on Keep a Changelog, and the project intends to use Semantic Versioning.
   and a reviewable dependency-license metadata inventory.
 - Production-build browser acceptance and a safe missing-order failure journey.
 - CodeQL, dependency review, and scheduled dependency-update definitions.
-- Release scope, runtime, data-flow, threat-model, lifecycle, and AI-usage guidance.
+- Release scope, runtime, data-flow, threat-model, and lifecycle guidance.
 - An end-to-end IBM Bob and watsonx Orchestrate ADK case-study narrative plus a
   facilitator-ready workshop.
 - A manual two-job Bob Shell advisory-review workflow with service-controlled gate

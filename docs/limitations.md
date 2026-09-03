@@ -54,9 +54,8 @@
   public path and can invoke a separately installed and licensed Bob Shell runtime
   on its Linux review runner; the low-level controller command is intentionally
   Linux-only. Authenticated execution for the current candidate is `not_completed`.
-- The maintainer reports Bob-assisted development of this case study, but no exact
-  release commit is independently attributed to Bob without separate session-bound
-  provenance.
+- Private Bob session transcripts and account-backed execution evidence are not part
+  of the repository.
 - Bob controller, report, workspace-policy, and workflow-contract tests do not
   substitute for a protected authenticated run.
 - WXO model availability, APIs, ADK behavior, tenant policy, and licensing may change.

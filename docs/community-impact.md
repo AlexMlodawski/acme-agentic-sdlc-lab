@@ -6,7 +6,7 @@ center of a repeatable community program.
 ## Suggested sequence
 
 1. Publish a tagged, reproducible first release.
-2. Write a technical article: *Why an AI-generated feature is not a release decision*.
+2. Write a technical article: *Why a feature is not a release decision*.
 3. Record a short Baseline → plan → implementation → evidence video.
 4. Deliver the lab at an IBM TechXchange or local user-group session.
 5. Publish both English and Polish walkthroughs.

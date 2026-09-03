@@ -16,8 +16,7 @@ The `v0.1.0` scope remains deliberately bounded. It is a reproducible educationa
 lab, not a production service, proof of a tenant deployment, or an autonomous
 release platform.
 
-> AI output is a candidate contribution. Tests produce evidence. A human owns the
-> release decision.
+> Deterministic checks produce evidence. A human owns the release decision.
 
 ![Mock-mode Acme portal with contextual assistant](docs/assets/acme-agentic-support.png)
 
@@ -47,7 +46,7 @@ and [Bob Shell CI/CD control model](docs/bob-shell-cicd.md).
 | watsonx Orchestrate ADK artifacts | Versioned and validated offline |
 | Import into watsonx Orchestrate Draft | Prepared and documented; authenticated import `not_asserted` |
 | Deployment to watsonx Orchestrate Live | Out of scope and `not_asserted` |
-| Bob IDE use | Maintainer-reported process; no private session transcript or commit-bound proof is published |
+| Bob IDE workflow | Plan-first workflow is documented; private session details are not part of the repository |
 | Bob Shell CI/CD controller | Implemented and locally contract-tested |
 | Authenticated Bob Shell review of this candidate | `not_completed` until the protected runner and credential are used |
 | Release approval | Human-owned; no automated approval |
@@ -71,10 +70,10 @@ and [Bob Shell CI/CD control model](docs/bob-shell-cicd.md).
 
 The repository has source-level seams and guidance for watsonx Orchestrate Draft
 and Instana, plus an optional manual Bob Shell workflow. The `v0.1.0` release claim
-does **not** include observed tenant execution, Instana trace receipt, commit-level
-Bob authorship, an authenticated Bob Shell run, replay mode, WXO Live promotion,
-WXO tenant deployment, or automatic approval. Those states remain `not_asserted` or
-`not_completed` unless a separately authorized, candidate-bound run proves them.
+does **not** include observed tenant execution, Instana trace receipt, an
+authenticated Bob Shell run, replay mode, WXO Live promotion, WXO tenant deployment,
+or automatic approval. Those states remain `not_asserted` or `not_completed` unless
+a separately authorized, candidate-bound run proves them.
 
 See [release scope](docs/release-scope.md) and [limitations](docs/limitations.md).
 
@@ -189,7 +188,7 @@ internal tool call or knowledge retrieval. Start with the
 
 ```mermaid
 flowchart LR
-  Human[Human requirement and scope] --> BobIDE[Bob IDE-assisted plan and implementation]
+  Human[Human requirement and scope] --> BobIDE[Bob IDE plan and implementation]
   BobIDE --> ADK[Versioned ADK agent, tool, and knowledge]
   ADK --> Change[Reviewable exact-SHA candidate]
   Change --> Gates[Lint, contracts, tests, builds, scans]
@@ -242,15 +241,13 @@ tracked targets, and enforce path containment. They preserve source, Git history
 global runtimes, package-manager caches, and the shared Playwright browser cache.
 Stop running services first.
 
-## Security, privacy, and AI usage
+## Security and privacy
 
 Use fictional data only. Never commit credentials, tenant exports, browser auth
 state, production customer content, or private observability payloads. Report a
 vulnerability through the process in [SECURITY.md](SECURITY.md).
 
-AI coding tools may assist with bounded engineering work, but they do not own scope,
-claims, approval, or external actions. The disclosure and attribution rules are in
-[AI_USAGE.md](AI_USAGE.md).
+For the AI disclosure, see [AI_USAGE.md](AI_USAGE.md).
 
 ## Community, licensing, and trademarks
 

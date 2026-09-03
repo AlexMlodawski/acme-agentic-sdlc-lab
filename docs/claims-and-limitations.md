@@ -6,8 +6,8 @@
 - The optional IBM path requires the user's own licensed products and tenant.
 - The Bob Shell controller is implemented, but authenticated execution for the
   current candidate remains `not_completed`; its output is advisory.
-- The maintainer reports IBM Bob use in preparing this case study, while private
-  session transcripts and commit-level provenance are not published.
+- Private Bob session details and account-backed execution evidence are not part of
+  the repository.
 - No IBM binary, logo, credential, tenant export, or private runtime artifact is distributed.
 - Tenant model availability and ADK behavior can change; consult current official documentation.
 - OpenTelemetry support demonstrates export mechanics, not a complete production observability policy.

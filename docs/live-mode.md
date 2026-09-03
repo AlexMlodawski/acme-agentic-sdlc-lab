@@ -15,7 +15,7 @@ or production readiness.
 | WXO Draft agent package | Yes | No; `not_asserted` |
 | WXO read-only order tool | Yes | No tenant invocation claim |
 | Instana OTLP/HTTP exporter path | Yes | No tenant receipt or trace-search claim |
-| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Maintainer-reported IDE use; authenticated Shell execution `not_completed`; no commit-level authorship proof |
+| IBM Bob choreography | IDE prompts and optional Bob Shell controller | Plan-first workflow is documented; authenticated Shell execution `not_completed` |
 | Forgejo workflow | No | Out of scope |
 | Replay profile | No | Out of scope |
 | WXO Live promotion | No | Prohibited by scope |
@@ -58,7 +58,6 @@ A future account-backed run should separate these claims:
 | Knowledge retrieval | Retrieval-specific evidence tied to the same run; policy wording alone is insufficient |
 | Instana export | Sanitized exporter diagnostic for the candidate process |
 | Instana receipt | Read-only trace result from the intended tenant tied by bounded correlation metadata |
-| IBM Bob authorship | Exact commit created in the observed Bob-assisted session and subsequently reviewed |
 | Human approval | Named approval record for the exact candidate after all required checks |
 
 Evidence must omit keys, tokens, auth headers, private URLs, cookies, tenant exports,

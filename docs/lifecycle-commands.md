@@ -111,7 +111,7 @@ the job boundary. It gives Bob the complete tracked exact-candidate source plus 
 record, not a diff, PR scope, logs, or test summaries. See
 [Bob Shell in CI/CD](bob-shell-cicd.md); do not manufacture the required gate-evidence
 file, invoke the Linux-only low-level command as a public workflow substitute, or
-treat an AI recommendation as a test result. Bob evidence is never automatically
+treat a Bob recommendation as a test result. Bob evidence is never automatically
 overwritten.
 
 ## Deliberately absent lifecycle operations

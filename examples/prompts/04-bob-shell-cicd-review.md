@@ -26,7 +26,7 @@ Inspect the tracked source and assess:
 3. whether secrets remain server-side and optional IBM integrations fail closed;
 4. whether tests cover success, invalid input, missing data, and failure paths;
 5. whether public documentation distinguishes local evidence, Draft preparation,
-   Live deployment, Bob-assisted authorship, and Bob Shell execution accurately;
+   Live deployment, the documented IBM Bob and WXO workflow, and Bob Shell execution accurately;
 6. whether the candidate introduces a release-blocking security, privacy,
    licensing, or provenance concern.
 

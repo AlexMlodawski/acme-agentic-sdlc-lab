@@ -45,7 +45,8 @@ flowchart LR
 - A compromised package publisher or CI action.
 - A malicious or compromised external endpoint attempting redirect or data capture.
 - An operator accidentally exposing a local compatibility profile externally.
-- An AI system producing plausible but unsupported implementation or release claims.
+- An automated reviewer producing plausible but unsupported implementation or release
+  claims.
 - A maintainer accidentally publishing credentials, tenant data, or generated caches.
 
 ## Threat analysis
@@ -81,7 +82,7 @@ flowchart LR
 5. An assistant answer is presented as proof of a tool invocation or retrieval.
 6. A synthetic support-case acknowledgement is represented as a durable ticket.
 7. Static fictional order data is represented as live carrier data.
-8. An AI-generated change bypasses human review because its output appears complete.
+8. An automated change bypasses human review because its output appears complete.
 
 ## Required release checks derived from this model
 

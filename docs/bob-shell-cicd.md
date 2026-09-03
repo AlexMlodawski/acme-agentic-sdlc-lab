@@ -9,8 +9,7 @@ and repository-owned tests. Those source controls are implemented and testable
 without a Bob credential.
 
 **Authenticated Bob Shell execution has not been completed for the current
-candidate.** No generated report is committed, and no Bob-authored commit is inferred
-from the controller's presence. Until an authorized run creates sanitized,
+candidate.** No generated report is committed. Until an authorized run creates sanitized,
 candidate-bound evidence, the narrower execution claim is `not_completed`.
 Accordingly, the public claim “Bob Shell reviewed this candidate” is `not_asserted`.
 These labels describe different things: an unfinished execution versus a claim the
@@ -271,8 +270,8 @@ showing:
    was performed by the review job.
 
 Only then may public documentation say that Bob Shell reviewed that exact candidate
-in CI/CD. The evidence would still not establish that Bob authored the code or that
-watsonx Orchestrate accepted or deployed the agent.
+in CI/CD. The evidence would still not establish that watsonx Orchestrate accepted
+or deployed the agent.
 
 ## Official IBM references
 

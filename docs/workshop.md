@@ -2,8 +2,7 @@
 
 This workshop uses the Acme customer-support lab to demonstrate a simple rule:
 
-> AI output is a candidate contribution. Tests produce evidence. A human owns the
-> release decision.
+> Plan first. Tests produce evidence. A human owns the release decision.
 
 The supported core path is local, deterministic, loopback-only, and uses fictional
 data. It does not require an IBM account or application credential. IBM Bob can be
@@ -45,8 +44,8 @@ version is available in [the demo guide](demo-guide.md).
 
 By the end of the core workshop, participants should be able to:
 
-1. explain the difference between an AI-produced change, deterministic validation,
-   an advisory review, and a human release decision;
+1. explain the difference between a planned change, deterministic validation, an
+   advisory review, and a human release decision;
 2. run the portal, Support API, assistant, and support-case journey without secrets;
 3. trace browser, portal, provider, API, and evidence trust boundaries;
 4. use a plan-only prompt and stop for human review before implementation;
@@ -62,8 +61,8 @@ By the end of the core workshop, participants should be able to:
   optional service access, and the final workshop decision record.
 - **Participant:** runs the local journey, reviews the plan, implements or reviews the
   candidate, executes checks, and reports observed evidence.
-- **AI builder:** proposes a plan and, only after approval, may produce a bounded
-  candidate change.
+- **Bob IDE assistant:** proposes a plan and, only after approval, may produce a
+  bounded candidate change.
 - **Advisory reviewer:** independently assesses the exact candidate. It cannot repair,
   merge, tag, publish, deploy, import, or promote it.
 - **Human release owner:** decides whether the exact candidate is acceptable and
@@ -144,7 +143,7 @@ state. Before promising a live Bob exercise, the facilitator must verify:
 
 If Bob is unavailable, participants may still write and review the plan, implement
 the same bounded change manually, and complete the local evidence path. Record Bob
-execution as `not_completed`; do not attribute the resulting commit to Bob.
+execution as `not_completed` and continue with the local evidence path.
 
 ### 5. Prepare optional tenant-backed extensions separately
 
@@ -316,10 +315,11 @@ The customer must review the attached order context, choose `priority`, enter or
 review the description, and explicitly submit the existing form.
 
 Create a local workshop branch if the facilitator permits participant edits. Record
-the baseline SHA before starting. Then give the AI builder the complete prompt in
+the baseline SHA before starting. Then give the Bob IDE assistant the complete
+prompt in
 [`examples/prompts/01-bob-plan-only.md`](../examples/prompts/01-bob-plan-only.md).
 
-The builder must:
+The Bob IDE assistant must:
 
 - inspect the repository;
 - produce an implementation and verification plan;
@@ -357,9 +357,8 @@ CTA is optional only if it remains accessible and still requires explicit custom
 submission. Do not accept a hidden API call, auto-filled submission side effect, or
 automatic ticket creation.
 
-If Bob performed the change, attribute only the exact observed candidate created in
-that session. Tool availability or use of the prompt does not retroactively establish
-Bob authorship.
+Record the exact candidate SHA and review the resulting diff before continuing to
+verification.
 
 ## Stage 6: Run deterministic verification
 
@@ -448,7 +447,7 @@ of the exact candidate, and a fixed same-run pass record listing the determinist
 commands. It does not receive a selected diff, pull-request scope, test logs, or
 sanitized test summaries. It inspects but does not repair. It must distinguish
 completed checks from unavailable evidence and must not claim WXO tool use, knowledge
-retrieval, Instana receipt, or Bob authorship beyond the observed session.
+retrieval, or Instana receipt beyond the observed session.
 
 Use the manual GitHub workflow for the public exercise. The low-level
 `npm run review:bob` entrypoint is intentionally Linux-only and exists for the
@@ -557,7 +556,7 @@ If any tenant check is unavailable, unfinished, or cannot be sanitized, leave it
 | Dependency registry unavailable before installation completes | Use a previously verified room image or demonstrate from the facilitator machine | Participant installation `not_completed` |
 | Chromium installation fails | Run non-browser checks and show candidate-bound browser evidence only if it matches the exact SHA | Participant browser run `not_completed` |
 | Port already in use | Stop the known owner or use supported distinct Playwright ports; do not kill an unidentified process | Depends on completed retry |
-| Bob unavailable or unauthenticated | Use plan review plus manual implementation; do not attribute the change to Bob | Bob execution `not_completed` |
+| Bob unavailable or unauthenticated | Use plan review plus manual implementation and record the missing execution | Bob execution `not_completed` |
 | Bob produces an invalid or mutating result | Reject the result and restore the approved candidate safely | Bob review `fail` |
 | WXO tenant unavailable | Continue with local/mock and inspect Draft source only | Tenant behavior `not_asserted` |
 | Instana trace not found | Keep exporter and tenant-receipt claims separate | Receipt `not_asserted` or check `fail`, depending on what completed |
@@ -597,8 +596,6 @@ created candidate-bound evidence when the audit finished.
 Do not claim that:
 
 - this is an official IBM reference architecture;
-- Bob created or reviewed a commit unless that exact session and candidate were
-  observed;
 - a local response came from WXO;
 - response text proves an internal tool call or knowledge retrieval;
 - an exporter attempt proves Instana received a trace;

@@ -19,7 +19,6 @@ The lab separates facts from attractive but unsupported inferences.
 - An API correlation ID links bounded observations; it is not a trace by itself.
 - A trace search proves only what the returned trace contains.
 - A Git SHA identifies source; an archive digest identifies packaged bytes.
-- AI authorship is attributed only to the exact reviewed commit created in that session.
 
 ## Privacy boundary
 

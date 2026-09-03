@@ -97,7 +97,7 @@ test("validates and deterministically renders a report", () => {
   assert.equal(validateBobReviewSchema(value), value);
   assert.equal(validateBobReviewReport(value), value);
   const markdown = renderBobReviewMarkdown(value);
-  assert.match(markdown, /advisory AI output/u);
+  assert.match(markdown, /advisory Bob Shell output/u);
   assert.match(markdown, new RegExp(sha, "u"));
   assert.equal(markdown, renderBobReviewMarkdown(value));
   assert.throws(() => validateBobReviewSchema({ ...value, unsupported: true }), /does not conform/u);

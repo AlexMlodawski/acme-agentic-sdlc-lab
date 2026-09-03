@@ -337,7 +337,7 @@ export function renderBobReviewMarkdown(report) {
     `- Source mutation guard: \`${report.review.sourceMutationGuard}\``,
     `- Recommendation: \`${report.recommendation}\``,
     "",
-    "> This is advisory AI output. Deterministic gates and a human release decision remain authoritative.",
+    "> This is advisory Bob Shell output. Deterministic gates and a human release decision remain authoritative.",
     "",
     "## Summary",
     "",

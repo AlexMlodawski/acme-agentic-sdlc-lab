@@ -31,7 +31,6 @@ a case autonomously.
 | Live deployment | Out of scope and `not_asserted` |
 | Deterministic CI | Implemented in GitHub Actions without an IBM account |
 | Bob Shell review in CI/CD | Manual exact-SHA controller and contract tests implemented; authenticated execution is `not_completed` |
-| IBM Bob authorship of existing commits | `not_asserted` without session- and commit-bound evidence |
 | Final release decision | Reserved for a human maintainer |
 
 “Prepared for Draft import” is deliberately narrower than “deployed.” The current
@@ -43,7 +42,7 @@ interacted with it.
 
 ```mermaid
 flowchart LR
-  Requirement[Human requirement and guardrails] --> Bob[IBM Bob-assisted plan and change]
+  Requirement[Human requirement and guardrails] --> Bob[IBM Bob plan and implementation]
   Bob --> Source[Versioned ADK agent, tool, and knowledge source]
   Source --> Local[Offline materialization and validation]
   Local -. separately authorized .-> Draft[watsonx Orchestrate Draft import and preview]
@@ -93,8 +92,8 @@ IBM also documents **Build with Bob**, which can initialize a watsonx Orchestrat
 workspace and help create, modify, validate, import, or deploy agent assets through
 natural-language instructions. The one-click launch integration is documented as a
 Preview feature for watsonx Orchestrate SaaS on AWS and IBM Cloud. This repository
-does not treat feature availability as evidence that it was used for a particular
-commit. See [Building agents with IBM Bob](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-building-bob).
+does not treat feature availability as evidence of a completed external run. See
+[Building agents with IBM Bob](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-building-bob).
 
 ## Stage 3: keep agent assets reviewable in Git
 
@@ -161,8 +160,8 @@ dependencies, builds the application, and exercises both development and
 production-build browser profiles.
 
 The authoritative automated outcome comes from commands with explicit exit codes,
-schemas, assertions, and candidate-bound evidence. An AI review cannot convert a
-failed, missing, or unfinished deterministic check into a pass.
+schemas, assertions, and candidate-bound evidence. An advisory review cannot convert
+a failed, missing, or unfinished deterministic check into a pass.
 
 IBM's ADK CI/CD guidance likewise describes version-controlled agent definitions,
 test and security gates, Draft testing, approval boundaries, and a separate Live
@@ -204,11 +203,9 @@ deterministic CI commands, and browser tests from the public source without an I
 account. Reproducing the IBM-connected stages requires the reader's own licensed
 products, current entitlements, credentials, and explicit authorization.
 
-Do not publish exact-change or commit-level Bob authorship, Draft import, tool
-invocation, knowledge retrieval, or Live deployment claims unless a separate
-observed run provides candidate-bound evidence for that exact statement. A
-maintainer may describe the broader project-level process as Bob-assisted while
-making the narrower provenance boundary explicit.
+Do not publish Draft import, tool invocation, knowledge retrieval, or Live deployment
+claims unless a separate observed run provides candidate-bound evidence for that
+exact statement.
 
 ## Independence and trademarks
 

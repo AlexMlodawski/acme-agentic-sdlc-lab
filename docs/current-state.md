@@ -29,7 +29,7 @@ workflow runs, tags, and releases are host state and cannot be proven by source 
 - Strict Bob report contract, public-output validation, workspace policy, tracked
   worktree mutation snapshot, and repository-owned controller/workflow tests.
 - Case-study narrative, facilitator-ready workshop, governance, security, licensing,
-  AI-usage, and trademark documentation.
+  and trademark documentation.
 
 ## Evidence state
 
@@ -39,7 +39,7 @@ workflow runs, tags, and releases are host state and cannot be proven by source 
 | ADK package | Implemented and locally testable | Tenant import and Draft behavior `not_asserted` |
 | WXO portal adapter | Implemented and tested with controlled doubles | Authenticated tenant response, tool use, and retrieval `not_asserted` |
 | Instana adapter | Implemented and locally wire-tested | Tenant receipt, indexing, and correlation `not_asserted` |
-| Bob IDE workflow | Prompts and human gates documented | Maintainer-reported use; private session and commit-level attribution are not published |
+| Bob IDE workflow | Prompts and human gates documented | Plan-first workflow is documented; private session details are not part of the repository |
 | Bob Shell controller | Implemented and locally contract-tested | Authenticated exact-candidate review `not_completed` |
 | GitHub workflows | Definitions are versioned with bounded permissions and pinned actions | Hosted runs and repository settings require direct observation |
 | Public release | Prepared source and process | Tag, release artifact, publication, and human GO not established by this file |

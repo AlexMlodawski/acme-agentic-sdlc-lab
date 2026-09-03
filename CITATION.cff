@@ -9,6 +9,6 @@ version: 0.1.0
 repository-code: "https://github.com/AlexMlodawski/acme-agentic-sdlc-lab"
 license: Apache-2.0
 abstract: >-
-  An independent, evidence-first case study of building a fictional AI support
-  assistant as watsonx Orchestrate ADK artifacts with IBM Bob assistance, then
-  applying deterministic CI and an optional Bob Shell advisory review.
+  An independent, evidence-first case study of a fictional AI support assistant
+  using watsonx Orchestrate ADK artifacts, IBM Bob IDE planning, deterministic CI,
+  and an optional Bob Shell advisory review.
