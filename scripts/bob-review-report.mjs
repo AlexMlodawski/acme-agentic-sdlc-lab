@@ -20,6 +20,14 @@ const RECOMMENDATIONS = new Set([
 export const EXPECTED_BOB_VERSION = "2.0.2";
 export const EXPECTED_BOB_COMMIT = "a31a75e3";
 export const MAX_BOB_DIAGNOSTIC_EVENTS = 20;
+export const REQUIRED_BOB_CHECK_NAMES = Object.freeze([
+  "scope-and-user-control",
+  "wxo-chain-alignment",
+  "secrets-and-fail-closed",
+  "test-coverage",
+  "public-claim-accuracy",
+  "release-blocking-risks",
+]);
 export const READ_ONLY_DISABLED_TOOL_GROUPS = Object.freeze([
   "edit",
   "execute",
@@ -66,6 +74,18 @@ function validateCheck(check, prefix, issues, { commandRequired = false } = {}) 
   issue(issues, isUsefulText(check.evidence), `${prefix}.evidence must be useful text.`);
 }
 
+function validateReviewerChecks(checks, issues) {
+  issue(issues, Array.isArray(checks) && checks.length === REQUIRED_BOB_CHECK_NAMES.length,
+    `checks must contain exactly ${REQUIRED_BOB_CHECK_NAMES.length} required items.`);
+  if (!Array.isArray(checks)) return;
+
+  checks.forEach((check, index) => validateCheck(check, `checks[${index}]`, issues));
+  const names = checks.map((check) => check?.name);
+  issue(issues, new Set(names).size === names.length, "reviewer check names must be unique.");
+  issue(issues, REQUIRED_BOB_CHECK_NAMES.every((name, index) => names[index] === name),
+    `reviewer checks must use the required names in order: ${REQUIRED_BOB_CHECK_NAMES.join(", ")}.`);
+}
+
 function validateFinding(finding, prefix, issues) {
   const keys = ["id", "severity", "area", "observation", "evidence", "recommendation"];
   issue(issues, hasExactKeys(finding, keys), `${prefix} has missing or unsupported fields.`);
@@ -97,11 +117,7 @@ export function validateBobPayload(payload) {
   if (!isRecord(payload)) failIfIssues("Bob payload", issues);
 
   issue(issues, isUsefulText(payload.summary, 8_000), "summary must be useful text.");
-  issue(issues, Array.isArray(payload.checks) && payload.checks.length >= 1 && payload.checks.length <= 100,
-    "checks must contain 1 through 100 items.");
-  if (Array.isArray(payload.checks)) {
-    payload.checks.forEach((check, index) => validateCheck(check, `checks[${index}]`, issues));
-  }
+  validateReviewerChecks(payload.checks, issues);
   issue(issues, Array.isArray(payload.findings) && payload.findings.length <= 100,
     "findings must contain no more than 100 items.");
   if (Array.isArray(payload.findings)) {
@@ -304,11 +320,7 @@ export function validateBobReviewReport(report) {
     });
   }
   issue(issues, isUsefulText(report.summary, 8_000), "summary must be useful text.");
-  issue(issues, Array.isArray(report.checks) && report.checks.length >= 1 && report.checks.length <= 100,
-    "checks must contain 1 through 100 items.");
-  if (Array.isArray(report.checks)) {
-    report.checks.forEach((check, index) => validateCheck(check, `checks[${index}]`, issues));
-  }
+  validateReviewerChecks(report.checks, issues);
   issue(issues, Array.isArray(report.findings) && report.findings.length <= 100,
     "findings must contain no more than 100 items.");
   if (Array.isArray(report.findings)) {

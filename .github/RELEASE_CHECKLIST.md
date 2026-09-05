@@ -13,10 +13,10 @@ working tree, archive, machine, or external-service session.
 ## Automated gates
 
 - [ ] `npm ci --ignore-scripts` completed from the lockfile.
-- [ ] `npm run release:audit -- --mode Full --candidate v0.1.0-rc.5` returned zero.
-- [ ] `release-evidence/v0.1.0-rc.5/evidence-complete.json` exists, reports
+- [ ] `npm run release:audit -- --mode Full --candidate v0.1.0-rc.6` returned zero.
+- [ ] `release-evidence/v0.1.0-rc.6/evidence-complete.json` exists, reports
   `completion_status: pass`, and matches the candidate, source SHA, report, and checksums.
-- [ ] Every hard-gate step in `release-evidence/v0.1.0-rc.5/report.json` is `pass`.
+- [ ] Every hard-gate step in `release-evidence/v0.1.0-rc.6/report.json` is `pass`.
 - [ ] Current-tree and reachable-history scans are `pass`.
 - [ ] Unit, integration, contract, Python, and both browser profiles are `pass`.
 - [ ] npm and Python vulnerability checks have no release-blocking finding.

@@ -42,6 +42,12 @@ based on Keep a Changelog, and the project intends to use Semantic Versioning.
 - Made Bob Shell 2.0.2 machine-output handling fail closed while accepting its
   observed bounded diagnostic JSONL prefix; persisted evidence records only the
   diagnostic count and never the diagnostic messages.
+- Raised the bounded Bob Shell default from 12 to 30 turns while retaining the
+  `0.5` Bobcoin ceiling, and focused the advisory prompt on an explicit critical-file
+  map with best-effort guidance to reserve six turns for evidence reconciliation
+  and JSON synthesis.
+- Required one canonical reviewer check for each of the six advisory focus areas
+  so incomplete or duplicated focus coverage fails report validation.
 
 ### Removed
 
