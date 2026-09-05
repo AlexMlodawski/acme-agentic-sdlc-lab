@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "12.1.0",
-    "@types/node": "24.13.3",
+    "@types/node": "26.4.0",
     "pino": "10.3.1",
     "tsx": "4.23.12",
     "typescript": "5.9.3",
