@@ -6,7 +6,9 @@ import {
   buildBobReviewReport,
   MAX_BOB_DIAGNOSTIC_EVENTS,
   parseBobJsonResult,
+  REQUIRED_BOB_CHECK_NAMES,
   renderBobReviewMarkdown,
+  validateBobPayload,
   validateBobReviewReport,
 } from "./bob-review-report.mjs";
 import { validateBobReviewSchema } from "./bob-review-schema.mjs";
@@ -14,10 +16,18 @@ import { validateBobReviewSchema } from "./bob-review-schema.mjs";
 const sha = "0123456789abcdef0123456789abcdef01234567";
 const controllerSha = "89abcdef0123456789abcdef0123456789abcdef";
 
+function reviewerChecks() {
+  return REQUIRED_BOB_CHECK_NAMES.map((name) => ({
+    name,
+    status: "pass",
+    evidence: `README.md records bounded evidence for ${name}.`,
+  }));
+}
+
 function payload(overrides = {}) {
   return {
     summary: "The candidate is coherent and remains subject to human review.",
-    checks: [{ name: "Release boundaries", status: "pass", evidence: "docs/release-scope.md states the boundary." }],
+    checks: reviewerChecks(),
     findings: [],
     notAsserted: [{
       claim: "watsonx Orchestrate Draft execution",
@@ -56,7 +66,7 @@ function report(overrides = {}) {
     controllerSha,
     reviewedAt: "2026-09-02T12:00:00.000Z",
     maxCost: 0.5,
-    maxTurns: 12,
+    maxTurns: 30,
     toolCalls: 4,
     diagnosticEventCount: 0,
     gateEvidence: {
@@ -164,6 +174,48 @@ test("does not allow a ready recommendation with severe findings", () => {
       }],
     }),
   }), /high or critical/u);
+});
+
+test("requires exactly one canonically ordered check for each review focus", () => {
+  const valid = payload();
+  assert.deepEqual(valid.checks.map((check) => check.name), REQUIRED_BOB_CHECK_NAMES);
+  assert.equal(validateBobPayload(valid), valid);
+
+  assert.throws(
+    () => validateBobPayload(payload({ checks: valid.checks.slice(0, -1) })),
+    /exactly 6 required items/u,
+  );
+
+  const duplicated = reviewerChecks();
+  duplicated[5] = { ...duplicated[5], name: duplicated[0].name };
+  assert.throws(
+    () => validateBobPayload(payload({ checks: duplicated })),
+    /names must be unique/u,
+  );
+
+  const reordered = reviewerChecks();
+  [reordered[0], reordered[1]] = [reordered[1], reordered[0]];
+  assert.throws(
+    () => validateBobPayload(payload({ checks: reordered })),
+    /required names in order/u,
+  );
+});
+
+test("schema enforces the six complete and ordered reviewer checks", () => {
+  const valid = report();
+  assert.equal(validateBobReviewSchema(valid), valid);
+
+  const incomplete = structuredClone(valid);
+  incomplete.checks.pop();
+  assert.throws(() => validateBobReviewSchema(incomplete), /does not conform/u);
+
+  const reordered = structuredClone(valid);
+  [reordered.checks[0], reordered.checks[1]] = [reordered.checks[1], reordered.checks[0]];
+  assert.throws(() => validateBobReviewSchema(reordered), /does not conform/u);
+
+  const duplicated = structuredClone(valid);
+  duplicated.checks[5].name = duplicated.checks[0].name;
+  assert.throws(() => validateBobReviewSchema(duplicated), /does not conform/u);
 });
 
 test("validates and deterministically renders a report", () => {

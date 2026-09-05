@@ -72,9 +72,17 @@
     "summary": { "$ref": "#/$defs/longText" },
     "checks": {
       "type": "array",
-      "minItems": 1,
-      "maxItems": 100,
-      "items": { "$ref": "#/$defs/check" }
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        { "$ref": "#/$defs/scopeAndUserControlCheck" },
+        { "$ref": "#/$defs/wxoChainAlignmentCheck" },
+        { "$ref": "#/$defs/secretsAndFailClosedCheck" },
+        { "$ref": "#/$defs/testCoverageCheck" },
+        { "$ref": "#/$defs/publicClaimAccuracyCheck" },
+        { "$ref": "#/$defs/releaseBlockingRisksCheck" }
+      ],
+      "items": false
     },
     "findings": {
       "type": "array",
@@ -108,6 +116,42 @@
         "status": { "enum": ["pass", "fail", "not_completed", "not_asserted"] },
         "evidence": { "$ref": "#/$defs/text" }
       }
+    },
+    "scopeAndUserControlCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "scope-and-user-control" } } }
+      ]
+    },
+    "wxoChainAlignmentCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "wxo-chain-alignment" } } }
+      ]
+    },
+    "secretsAndFailClosedCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "secrets-and-fail-closed" } } }
+      ]
+    },
+    "testCoverageCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "test-coverage" } } }
+      ]
+    },
+    "publicClaimAccuracyCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "public-claim-accuracy" } } }
+      ]
+    },
+    "releaseBlockingRisksCheck": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        { "type": "object", "required": ["name"], "properties": { "name": { "const": "release-blocking-risks" } } }
+      ]
     },
     "gate": {
       "type": "object",

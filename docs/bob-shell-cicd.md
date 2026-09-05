@@ -283,9 +283,18 @@ the `needs` dependency as successful; operators must not manufacture that file o
 transfer one from another job or run:
 
 ```text
-npm run review:bob -- --candidate <exact-40-character-sha> --gate-evidence <same-run-gates.json> --max-cost 0.5 --max-turns 12 --accept-license
+npm run review:bob -- --candidate <exact-40-character-sha> --gate-evidence <same-run-gates.json> --max-cost 0.5 --max-turns 30 --accept-license
 npm run review:bob:validate
 ```
+
+The checked-in defaults are a `0.5` Bobcoin ceiling and a 30-turn ceiling. These
+are independent caps: increasing the available turns does not raise the approved
+cost ceiling, and neither value is a consumption target. The review prompt starts
+from an explicit 23-file priority map and gives best-effort guidance to reserve the
+final six turns for evidence reconciliation and JSON synthesis; the controller does
+not enforce that internal allocation. Operators may select a lower ceiling. If
+either the cost or turn ceiling is exhausted before a valid result is returned, the
+execution remains `not_completed`; it is never converted to advisory evidence.
 
 The controller runs Bob in Ask mode with JSON output, the complete tracked source in
 a pristine exact-candidate workspace, an isolated home/temp profile,
@@ -306,6 +315,7 @@ The checked-in parser retains only a strict, public-safe report containing:
 - approved cost and turn caps, the disabled-tool boundary, and the count of
   validated structured diagnostic events with their messages suppressed;
 - the same-run gate identity and fixed list of passing commands;
+- exactly one named reviewer check for each of the six advisory focus areas;
 - sanitized findings, explicit `notAsserted` items, and the advisory recommendation;
 - hashes binding the JSON and Markdown reports to the completion marker.
 

@@ -34,3 +34,13 @@ test("Bob credential is scoped to the one review step", async () => {
   assert.doesNotMatch(workflow, /^\s+team_id:/mu);
   assert.match(workflow, /if: \$\{\{ steps\.bob_review\.outcome == 'success'.*source_guard\.outcome == 'success' \}\}/u);
 });
+
+test("Bob workflow defaults and forwards independent bounded cost and turn ceilings", async () => {
+  const workflow = await readFile(workflowUrl, "utf8");
+  assert.match(workflow, /^      max_cost:\r?\n(?:(?:        ).*\r?\n)*?        default: "0\.5"\r?$/mu);
+  assert.match(workflow, /^      max_turns:\r?\n(?:(?:        ).*\r?\n)*?        default: "30"\r?$/mu);
+  assert.match(workflow, /Number\.isFinite\(n\)\|\|n<=0\|\|n>5/u);
+  assert.match(workflow, /Number\.isInteger\(n\)\|\|n<1\|\|n>30/u);
+  assert.match(workflow, /--max-cost "\$REVIEW_MAX_COST"/u);
+  assert.match(workflow, /--max-turns "\$REVIEW_MAX_TURNS"/u);
+});

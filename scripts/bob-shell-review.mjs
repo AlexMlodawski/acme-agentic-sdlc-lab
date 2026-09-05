@@ -48,7 +48,7 @@ export function usage() {
     "  --candidate-repository <path>  Repository containing the candidate (default: current repository)",
     "  --gate-evidence <path>         Validated evidence from the separate deterministic-gates job",
     "  --max-cost <number>            Bobcoin ceiling above 0 and at most 5 (default: 0.5)",
-    "  --max-turns <number>           Turn ceiling from 1 through 30 (default: 12)",
+    "  --max-turns <number>           Turn ceiling from 1 through 30 (default: 30)",
     "  --team-id <id>                 Team ID required by a general API key",
     "  --accept-license               Confirm the operator already reviewed and accepts the IBM license",
     "  --help                         Show this help",
@@ -61,7 +61,7 @@ export function parseBobReviewArguments(argv) {
     candidateRepository: projectRoot,
     gateEvidence: undefined,
     maxCost: 0.5,
-    maxTurns: 12,
+    maxTurns: 30,
     teamId: undefined,
     acceptLicense: false,
   };

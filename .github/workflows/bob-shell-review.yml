@@ -15,7 +15,7 @@ name: Optional Bob Shell advisory review
       max_turns:
         description: Agentic turn ceiling (1 through 30)
         required: false
-        default: "12"
+        default: "30"
         type: string
       accept_license:
         description: I reviewed and accept the IBM Bob license for this run
